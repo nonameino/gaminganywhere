@@ -25,3 +25,10 @@
 
 /ga/client/ga-client
 /ga/server/periodic/ga-server-periodic
+/live555_lib/proj/BasicUsageEnvironment/Debug
+/live555_lib/proj/Debug
+/live555_lib/proj/UsageEnvironment/Debug
+/live555_lib/proj/groupsock/Debug
+/live555_lib/proj/*.sdf
+/live555_lib/proj/liveMedia/Debug
+/live555_lib/proj/*.suo
