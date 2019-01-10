@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // A class that encapsulates a Matroska file.
 // Implementation
 
@@ -33,7 +33,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <VP8VideoRTPSink.hh>
 #include <VP9VideoRTPSink.hh>
 #include <TheoraVideoRTPSink.hh>
-#include <RawVideoRTPSink.hh>
 #include <T140TextRTPSink.hh>
 
 ////////// CuePoint definition //////////
@@ -310,9 +309,7 @@ RTPSink* MatroskaFile
     MatroskaTrack* track = lookup(trackNumber);
     if (track == NULL) break;
 
-    if (strcmp(track->mimeType, "audio/L16") == 0) {
-      result = SimpleRTPSink::createNew(envir(), rtpGroupsock,rtpPayloadTypeIfDynamic, track->samplingFrequency, "audio", "L16", track->numChannels);
-    } else if (strcmp(track->mimeType, "audio/MPEG") == 0) {
+    if (strcmp(track->mimeType, "audio/MPEG") == 0) {
       result = MPEG1or2AudioRTPSink::createNew(envir(), rtpGroupsock);
     } else if (strcmp(track->mimeType, "audio/AAC") == 0) {
       // The Matroska file's 'Codec Private' data is assumed to be the AAC configuration
@@ -438,9 +435,6 @@ RTPSink* MatroskaFile
       } while (0);
 
       delete[] identificationHeader; delete[] commentHeader; delete[] setupHeader;
-    } else if (strcmp(track->mimeType, "video/RAW") == 0) {
-      result = RawVideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic, 
-                                          track->pixelHeight, track->pixelWidth, track->bitDepth, track->colorSampling, track->colorimetry);
     } else if (strcmp(track->mimeType, "video/H264") == 0) {
       // Use our track's 'Codec Private' data: Bytes 5 and beyond contain SPS and PPSs:
       u_int8_t* SPS = NULL; unsigned SPSSize = 0;
@@ -672,8 +666,7 @@ MatroskaTrack::MatroskaTrack()
     codecPrivateSize(0), codecPrivate(NULL),
     codecPrivateUsesH264FormatForH265(False), codecIsOpus(False),
     headerStrippedBytesSize(0), headerStrippedBytes(NULL),
-    colorSampling(""), colorimetry("BT709-2") /*Matroska default value for Primaries */,
-    pixelWidth(0), pixelHeight(0), bitDepth(8), subframeSizeSize(0) {
+    subframeSizeSize(0) {
 }
 
 MatroskaTrack::~MatroskaTrack() {

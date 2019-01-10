@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // RTCP
 // C++ header
 
@@ -45,8 +45,6 @@ typedef void RTCPAppHandlerFunc(void* clientData,
 
 class RTCPMemberDatabase; // forward
 
-typedef void ByeWithReasonHandlerFunc(void* clientData, char const* reason);
-
 class RTCPInstance: public Medium {
 public:
   static RTCPInstance* createNew(UsageEnvironment& env, Groupsock* RTCPgs,
@@ -75,12 +73,6 @@ public:
       // If "handleActiveParticipantsOnly" is False, then the handler is called
       // for any incoming RTCP "BYE".
       // (To remove an existing "BYE" handler, call "setByeHandler()" again, with a "handlerTask" of NULL.)
-  void setByeWithReasonHandler(ByeWithReasonHandlerFunc* handlerTask, void* clientData,
-			       Boolean handleActiveParticipantsOnly = True);
-      // Like "setByeHandler()", except that a string 'reason for the bye' (received as part of
-      // the RTCP "BYE" packet) is passed to the handler function (along with "clientData").
-      // (The 'reason' parameter to the handler function will be a dynamically-allocated string,
-      // or NULL, and should be delete[]d by the handler function.)
   void setSRHandler(TaskFunc* handlerTask, void* clientData);
   void setRRHandler(TaskFunc* handlerTask, void* clientData);
       // Assigns a handler routine to be called if a "SR" or "RR" packet
@@ -148,7 +140,7 @@ private:
       void enqueueCommonReportSuffix();
         void enqueueReportBlock(RTPReceptionStats* receptionStats);
   void addSDES();
-  void addBYE(char const* reason);
+  void addBYE();
 
   void sendBuiltPacket();
 
@@ -189,7 +181,6 @@ private:
   unsigned fLastPacketSentSize;
 
   TaskFunc* fByeHandlerTask;
-  ByeWithReasonHandlerFunc* fByeWithReasonHandlerTask;
   void* fByeHandlerClientData;
   Boolean fByeHandleActiveParticipantsOnly;
   TaskFunc* fSRHandlerTask;
@@ -204,7 +195,7 @@ public: // because this stuff is used by an external "C" function
   void schedule(double nextTime);
   void reschedule(double nextTime);
   void sendReport();
-  void sendBYE(char const* reason = NULL);
+  void sendBYE();
   int typeOfEvent() {return fTypeOfEvent;}
   int sentPacketSize() {return fLastSentSize;}
   int packetType() {return fTypeOfPacket;}

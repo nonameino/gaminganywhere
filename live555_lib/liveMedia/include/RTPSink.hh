@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // RTP Sinks
 // C++ header
 
@@ -86,9 +86,6 @@ public:
   }
   unsigned& estimatedBitrate() { return fEstimatedBitrate; } // kbps; usually 0 (i.e., unset)
 
-  u_int32_t SSRC() const {return fSSRC;}
-     // later need a means of changing the SSRC if there's a collision #####
-
 protected:
   RTPSink(UsageEnvironment& env,
 	  Groupsock* rtpGS, unsigned char rtpPayloadType,
@@ -102,6 +99,8 @@ protected:
   // used by RTCP:
   friend class RTCPInstance;
   friend class RTPTransmissionStats;
+  u_int32_t SSRC() const {return fSSRC;}
+     // later need a means of changing the SSRC if there's a collision #####
   u_int32_t convertToRTPTimestamp(struct timeval tv);
   unsigned packetCount() const {return fPacketCount;}
   unsigned octetCount() const {return fOctetCount;}

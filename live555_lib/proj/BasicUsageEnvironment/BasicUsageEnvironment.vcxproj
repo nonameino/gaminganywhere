@@ -18,6 +18,22 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\BasicUsageEnvironment\BasicHashTable.cpp" />
+    <ClCompile Include="..\..\BasicUsageEnvironment\BasicTaskScheduler.cpp" />
+    <ClCompile Include="..\..\BasicUsageEnvironment\BasicTaskScheduler0.cpp" />
+    <ClCompile Include="..\..\BasicUsageEnvironment\BasicUsageEnvironment.cpp" />
+    <ClCompile Include="..\..\BasicUsageEnvironment\BasicUsageEnvironment0.cpp" />
+    <ClCompile Include="..\..\BasicUsageEnvironment\DelayQueue.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\BasicUsageEnvironment\include\BasicHashTable.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment0.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment_version.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\DelayQueue.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\HandlerSet.hh" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{13522993-3E86-4560-B426-1E2A4A937354}</ProjectGuid>
     <RootNamespace>BasicUsageEnvironment</RootNamespace>
@@ -131,22 +147,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\BasicUsageEnvironment\BasicHashTable.cpp" />
-    <ClCompile Include="..\..\BasicUsageEnvironment\BasicTaskScheduler.cpp" />
-    <ClCompile Include="..\..\BasicUsageEnvironment\BasicTaskScheduler0.cpp" />
-    <ClCompile Include="..\..\BasicUsageEnvironment\BasicUsageEnvironment.cpp" />
-    <ClCompile Include="..\..\BasicUsageEnvironment\BasicUsageEnvironment0.cpp" />
-    <ClCompile Include="..\..\BasicUsageEnvironment\DelayQueue.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\BasicUsageEnvironment\include\BasicHashTable.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment0.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment_version.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\DelayQueue.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\HandlerSet.hh" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

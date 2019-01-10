@@ -35,11 +35,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\BasicUsageEnvironment\include\BasicHashTable.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment0.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment_version.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\DelayQueue.hh" />
-    <None Include="..\..\BasicUsageEnvironment\include\HandlerSet.hh" />
+    <None Include="..\..\BasicUsageEnvironment\include\BasicHashTable.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment_version.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\BasicUsageEnvironment\include\BasicUsageEnvironment0.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\BasicUsageEnvironment\include\DelayQueue.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\BasicUsageEnvironment\include\HandlerSet.hh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

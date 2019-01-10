@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // A sink that generates a QuickTime file from a composite media session
 // Implementation
 
@@ -297,10 +297,10 @@ QuickTimeFileSink::QuickTimeFileSink(UsageEnvironment& env,
   }
 
   // Use the current time as the file's creation and modification
-  // time.  Use Apple's time format: seconds (UTC) since January 1, 1904
+  // time.  Use Apple's time format: seconds since January 1, 1904
 
   gettimeofday(&fStartTime, NULL);
-  fAppleCreationTime = fStartTime.tv_sec - 0x83da4f80;
+  fAppleCreationTime = fStartTime.tv_sec - 0x83dac000;
 
   // Begin by writing a "mdat" atom at the start of the file.
   // (Later, when we've finished copying data to the file, we'll come
@@ -711,18 +711,16 @@ void SubsessionIOState::afterGettingFrame(unsigned packetDataSize,
 					  struct timeval presentationTime) {
   // Begin by checking whether there was a gap in the RTP stream.
   // If so, try to compensate for this (if desired):
-  if (fOurSubsession.rtpSource() != NULL) { // we have a RTP stream
-    unsigned short rtpSeqNum
-      = fOurSubsession.rtpSource()->curPacketRTPSeqNum();
-    if (fOurSink.fPacketLossCompensate && fPrevBuffer->bytesInUse() > 0) {
-      short seqNumGap = rtpSeqNum - fLastPacketRTPSeqNum;
-      for (short i = 1; i < seqNumGap; ++i) {
-	// Insert a copy of the previous frame, to compensate for the loss:
-	useFrame(*fPrevBuffer);
-      }
+  unsigned short rtpSeqNum
+    = fOurSubsession.rtpSource()->curPacketRTPSeqNum();
+  if (fOurSink.fPacketLossCompensate && fPrevBuffer->bytesInUse() > 0) {
+    short seqNumGap = rtpSeqNum - fLastPacketRTPSeqNum;
+    for (short i = 1; i < seqNumGap; ++i) {
+      // Insert a copy of the previous frame, to compensate for the loss:
+      useFrame(*fPrevBuffer);
     }
-    fLastPacketRTPSeqNum = rtpSeqNum;
   }
+  fLastPacketRTPSeqNum = rtpSeqNum;
 
   // Now, continue working with the frame that we just got
   fOurSink.noteRecordedFrame(fOurSubsession, packetDataSize, presentationTime);
@@ -734,8 +732,7 @@ void SubsessionIOState::afterGettingFrame(unsigned packetDataSize,
 
   // If our RTP source is a "QuickTimeGenericRTPSource", then
   // use its 'qtState' to set some parameters that we need:
-  if (fOurSubsession.rtpSource() != NULL // we have a RTP stream
-      && fQTMediaDataAtomCreator == &QuickTimeFileSink::addAtom_genericMedia) {
+  if (fQTMediaDataAtomCreator == &QuickTimeFileSink::addAtom_genericMedia){
     QuickTimeGenericRTPSource* rtpSource
       = (QuickTimeGenericRTPSource*)fOurSubsession.rtpSource();
     QuickTimeGenericRTPSource::QTState& qtState = rtpSource->qtState;
@@ -854,12 +851,13 @@ void SubsessionIOState::useFrame(SubsessionBuffer& buffer) {
   // Write the data into the file:
   fwrite(frameSource, 1, frameSize, fOurSink.fOutFid);
 
-  // If we have a hint track, then write to it also (only if we have a RTP stream):
-  if (hasHintTrack() && fOurSubsession.rtpSource() != NULL) {
+  // If we have a hint track, then write to it also:
+  if (hasHintTrack()) {
     // Because presentation times are used for RTP packet timestamps,
     // we don't starting writing to the hint track until we've been synced:
     if (!fHaveBeenSynced) {
-      fHaveBeenSynced = fOurSubsession.rtpSource()->hasBeenSynchronizedUsingRTCP();
+      fHaveBeenSynced
+	= fOurSubsession.rtpSource()->hasBeenSynchronizedUsingRTCP();
     }
     if (fHaveBeenSynced) {
       fHintTrackForUs->useFrameForHinting(frameSize, presentationTime,
@@ -886,7 +884,7 @@ void SubsessionIOState::useFrameForHinting(unsigned frameSize,
   // If there has been a previous frame, then output a 'hint sample' for it.
   // (We use the current frame's presentation time to compute the previous
   // hint sample's duration.)
-  RTPSource* const rs = fOurSubsession.rtpSource(); // abbrev (ASSERT: != NULL)
+  RTPSource* const rs = fOurSubsession.rtpSource(); // abbrev
   struct timeval const& ppt = fPrevFrameState.presentationTime; //abbrev
   if (ppt.tv_sec != 0 || ppt.tv_usec != 0) {
     double duration = (presentationTime.tv_sec - ppt.tv_sec)
@@ -1104,7 +1102,7 @@ void SubsessionIOState::onSourceClosure() {
 
 Boolean SubsessionIOState::syncOK(struct timeval presentationTime) {
   QuickTimeFileSink& s = fOurSink; // abbreviation
-  if (!s.fSyncStreams || fOurSubsession.rtpSource() == NULL) return True; // we don't care
+  if (!s.fSyncStreams) return True; // we don't care
 
   if (s.fNumSyncedSubsessions < s.fNumSubsessions) {
     // Not all subsessions have yet been synced.  Check whether ours was
@@ -1677,13 +1675,10 @@ unsigned QuickTimeFileSink::addAtom_genericMedia() {
   // Use its "sdAtom" state for our contents:
   QuickTimeGenericRTPSource* rtpSource = (QuickTimeGenericRTPSource*)
     fCurrentIOState->fOurSubsession.rtpSource();
-  unsigned size = 0;
-  if (rtpSource != NULL) {
-    QuickTimeGenericRTPSource::QTState& qtState = rtpSource->qtState;
-    char const* from = qtState.sdAtom;
-    size = qtState.sdAtomSize;
-    for (unsigned i = 0; i < size; ++i) addByte(from[i]);
-  }
+  QuickTimeGenericRTPSource::QTState& qtState = rtpSource->qtState;
+  char const* from = qtState.sdAtom;
+  unsigned size = qtState.sdAtomSize;
+  for (unsigned i = 0; i < size; ++i) addByte(from[i]);
 addAtomEnd;
 
 unsigned QuickTimeFileSink::addAtom_soundMediaGeneral() {
@@ -2024,13 +2019,13 @@ addAtom(stss); // Sync-Sample
   if (fCurrentIOState->fHeadSyncFrame != NULL) {
     SyncFrame* currentSyncFrame = fCurrentIOState->fHeadSyncFrame;
 
-    // First, count the number of frames (to use as a sanity check; see below):
-    unsigned totNumFrames = 0;
-    for (ChunkDescriptor* chunk = fCurrentIOState->fHeadChunk; chunk != NULL; chunk = chunk->fNextChunk) totNumFrames += chunk->fNumFrames;
-
-    while (currentSyncFrame != NULL) {
-      if (currentSyncFrame->sfFrameNum >= totNumFrames) break; // sanity check
-      
+    while (currentSyncFrame != NULL &&
+	   (fCurrentIOState->fHeadSyncFrame == fCurrentIOState->fTailSyncFrame ||
+	    currentSyncFrame != fCurrentIOState->fTailSyncFrame)) {
+      // Note: The above condition should really just be "currentSyncFrame != NULL", but QuickTime
+      // has been known to complain about the frame number in the last 'sync frame' record being
+      // 'out of range'.  We try to work around this by omitting the last 'sync frame' record,
+      // if there's more than one:
       ++numEntries;
       size += addWord(currentSyncFrame->sfFrameNum);
       currentSyncFrame = currentSyncFrame->nextSyncFrame;
@@ -2319,17 +2314,15 @@ addAtomEnd;
 addAtom(payt);
   MediaSubsession& ourSubsession = fCurrentIOState->fOurSubsession;
   RTPSource* rtpSource = ourSubsession.rtpSource();
-  if (rtpSource != NULL) {
-    size += addWord(rtpSource->rtpPayloadFormat());
+  size += addWord(rtpSource->rtpPayloadFormat());
 
-    // Also, add a 'rtpmap' string: <mime-subtype>/<rtp-frequency>
-    unsigned rtpmapStringLength = strlen(ourSubsession.codecName()) + 20;
-    char* rtpmapString = new char[rtpmapStringLength];
-    sprintf(rtpmapString, "%s/%d",
-	    ourSubsession.codecName(), rtpSource->timestampFrequency());
-    size += addArbitraryString(rtpmapString);
-    delete[] rtpmapString;
-  }
+  // Also, add a 'rtpmap' string: <mime-subtype>/<rtp-frequency>
+  unsigned rtpmapStringLength = strlen(ourSubsession.codecName()) + 20;
+  char* rtpmapString = new char[rtpmapStringLength];
+  sprintf(rtpmapString, "%s/%d",
+	  ourSubsession.codecName(), rtpSource->timestampFrequency());
+  size += addArbitraryString(rtpmapString);
+  delete[] rtpmapString;
 addAtomEnd;
 
 // A dummy atom (with name "????"):

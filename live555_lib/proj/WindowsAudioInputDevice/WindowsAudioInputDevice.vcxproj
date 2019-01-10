@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.hh" />
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.hh" />
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\WindowsAudioInputDevice\showAudioInputPorts.cpp" />
+    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.cpp" />
+    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.cpp" />
+    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4AC0445D-73D2-4DEB-A150-36750E415C4E}</ProjectGuid>
     <RootNamespace>WindowsAudioInputDevice</RootNamespace>
@@ -133,17 +144,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\WindowsAudioInputDevice\showAudioInputPorts.cpp" />
-    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.cpp" />
-    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.cpp" />
-    <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.hh" />
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.hh" />
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.hh" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

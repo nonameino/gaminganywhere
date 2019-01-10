@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // A generic RTSP client - for a single "rtsp://" URL
 // C++ header
 
@@ -30,10 +30,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _DIGEST_AUTHENTICATION_HH
 #include "DigestAuthentication.hh"
 #endif
-#ifndef OMIT_REGISTER_HANDLING
 #ifndef _RTSP_SERVER_HH
 #include "RTSPServer.hh" // For the optional "HandlerForREGISTERCommand" mini-server
-#endif
 #endif
 
 class RTSPClient: public Medium {
@@ -245,7 +243,6 @@ protected:
 				   char const*& protocolStr,
 				   char*& extraHeaders, Boolean& extraHeadersWereAllocated);
       // used to implement "sendRequest()"; subclasses may reimplement this (e.g., when implementing a new command name)
-  virtual int connectToServer(int socketNum, portNumBits remotePortNum); // used to implement "openConnection()"; result values: -1: failure; 0: pending; 1: success
 
 private: // redefined virtual functions
   virtual Boolean isRTSPClient() const;
@@ -262,7 +259,6 @@ private:
     void putAtHead(RequestRecord* request); // "request" must not be NULL
     RequestRecord* findByCSeq(unsigned cseq);
     Boolean isEmpty() const { return fHead == NULL; }
-    void reset();
 
   private:
     RequestRecord* fHead;
@@ -271,7 +267,8 @@ private:
 
   void resetTCPSockets();
   void resetResponseBuffer();
-  int openConnection(); // result values: -1: failure; 0: pending; 1: success
+  int openConnection(); // -1: failure; 0: pending; 1: success
+  int connectToServer(int socketNum, portNumBits remotePortNum); // used to implement "openConnection()"; result values are the same
   char* createAuthenticatorString(char const* cmd, char const* url);
   char* createBlocksizeString(Boolean streamUsingTCP);
   void handleRequestError(RequestRecord* request);
@@ -286,7 +283,7 @@ private:
   Boolean parseRTPInfoParams(char const*& paramStr, u_int16_t& seqNum, u_int32_t& timestamp);
   Boolean handleSETUPResponse(MediaSubsession& subsession, char const* sessionParamsStr, char const* transportParamsStr,
 			      Boolean streamUsingTCP);
-  Boolean handlePLAYResponse(MediaSession* session, MediaSubsession* subsession,
+  Boolean handlePLAYResponse(MediaSession& session, MediaSubsession& subsession,
                              char const* scaleParamsStr, const char* speedParamsStr,
 			     char const* rangeParamsStr, char const* rtpInfoParamsStr);
   Boolean handleTEARDOWNResponse(MediaSession& session, MediaSubsession& subsession);
@@ -348,7 +345,6 @@ private:
 };
 
 
-#ifndef OMIT_REGISTER_HANDLING
 ////////// HandlerServerForREGISTERCommand /////////
 
 // A simple server that creates a new "RTSPClient" object whenever a "REGISTER" request arrives (specifying the "rtsp://" URL
@@ -376,12 +372,9 @@ protected:
       // of "RTSPClient" instead, then subclass this class, and redefine this virtual function.
 
 protected: // redefined virtual functions
-  virtual char const* allowedCommandNames(); // "OPTIONS", "REGISTER", and (perhaps) "DEREGISTER" only
-  virtual Boolean weImplementREGISTER(char const* cmd/*"REGISTER" or "DEREGISTER"*/,
-				      char const* proxyURLSuffix, char*& responseStr);
-      // redefined to return True (for cmd=="REGISTER")
-  virtual void implementCmd_REGISTER(char const* cmd/*"REGISTER" or "DEREGISTER"*/,
-				     char const* url, char const* urlSuffix, int socketToRemoteServer,
+  virtual char const* allowedCommandNames(); // we support "OPTIONS" and "REGISTER" only
+  virtual Boolean weImplementREGISTER(char const* proxyURLSuffix, char*& responseStr); // redefined to return True
+  virtual void implementCmd_REGISTER(char const* url, char const* urlSuffix, int socketToRemoteServer,
 				     Boolean deliverViaTCP, char const* proxyURLSuffix);
 
 private:
@@ -389,6 +382,5 @@ private:
   int fVerbosityLevel;
   char* fApplicationName;
 };
-#endif
 
 #endif

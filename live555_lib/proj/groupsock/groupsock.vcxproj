@@ -18,6 +18,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\groupsock\GroupEId.cpp" />
+    <ClCompile Include="..\..\groupsock\Groupsock.cpp" />
+    <ClCompile Include="..\..\groupsock\GroupsockHelper.cpp" />
+    <ClCompile Include="..\..\groupsock\inet.c" />
+    <ClCompile Include="..\..\groupsock\IOHandlers.cpp" />
+    <ClCompile Include="..\..\groupsock\NetAddress.cpp" />
+    <ClCompile Include="..\..\groupsock\NetInterface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\groupsock\include\GroupEId.hh" />
+    <None Include="..\..\groupsock\include\Groupsock.hh" />
+    <None Include="..\..\groupsock\include\GroupsockHelper.hh" />
+    <None Include="..\..\groupsock\include\groupsock_version.hh" />
+    <None Include="..\..\groupsock\include\IOHandlers.hh" />
+    <None Include="..\..\groupsock\include\NetAddress.hh" />
+    <None Include="..\..\groupsock\include\NetInterface.hh" />
+    <None Include="..\..\groupsock\include\TunnelEncaps.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\groupsock\include\NetCommon.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F3269AA9-28EF-49B0-86C8-9A25DE1BBAC4}</ProjectGuid>
     <RootNamespace>groupsock</RootNamespace>
@@ -131,28 +153,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\groupsock\GroupEId.cpp" />
-    <ClCompile Include="..\..\groupsock\Groupsock.cpp" />
-    <ClCompile Include="..\..\groupsock\GroupsockHelper.cpp" />
-    <ClCompile Include="..\..\groupsock\inet.c" />
-    <ClCompile Include="..\..\groupsock\IOHandlers.cpp" />
-    <ClCompile Include="..\..\groupsock\NetAddress.cpp" />
-    <ClCompile Include="..\..\groupsock\NetInterface.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\groupsock\include\GroupEId.hh" />
-    <None Include="..\..\groupsock\include\Groupsock.hh" />
-    <None Include="..\..\groupsock\include\GroupsockHelper.hh" />
-    <None Include="..\..\groupsock\include\groupsock_version.hh" />
-    <None Include="..\..\groupsock\include\IOHandlers.hh" />
-    <None Include="..\..\groupsock\include\NetAddress.hh" />
-    <None Include="..\..\groupsock\include\NetInterface.hh" />
-    <None Include="..\..\groupsock\include\TunnelEncaps.hh" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\groupsock\include\NetCommon.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

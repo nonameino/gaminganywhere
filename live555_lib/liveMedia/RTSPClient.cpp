@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // A generic RTSP client
 // Implementation
 
@@ -184,12 +184,14 @@ void RTSPClient::setSpeed(MediaSession& session, float speed) {
   // Optionally set download speed for session to be used later on PLAY command:
   // The user should call this function after the MediaSession is instantiated, but before the
   // first "sendPlayCommand()" is called.
-  session.speed() = speed;
-  MediaSubsessionIterator iter(session);
-  MediaSubsession* subsession;
+  if (&session != NULL) {
+    session.speed() = speed;
+    MediaSubsessionIterator iter(session);
+    MediaSubsession* subsession;
 
-  while ((subsession = iter.next()) != NULL) {
-    subsession->speed() = speed;
+    while ((subsession = iter.next()) != NULL) {
+      subsession->speed() = speed;
+    }
   }
 }
 
@@ -395,6 +397,7 @@ RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
 }
 
 RTSPClient::~RTSPClient() {
+  RTPInterface::clearServerRequestAlternativeByteHandler(envir(), fInputSocketNum); // in case we were receiving RTP-over-TCP
   reset();
 
   delete[] fResponseBuffer;
@@ -404,9 +407,6 @@ RTSPClient::~RTSPClient() {
 void RTSPClient::reset() {
   resetTCPSockets();
   resetResponseBuffer();
-  fRequestsAwaitingConnection.reset();
-  fRequestsAwaitingHTTPTunneling.reset();
-  fRequestsAwaitingResponse.reset();
   fServerAddress = 0;
 
   setBaseURL(NULL);
@@ -422,7 +422,6 @@ void RTSPClient::setBaseURL(char const* url) {
 
 int RTSPClient::grabSocket() {
   int inputSocket = fInputSocketNum;
-  RTPInterface::clearServerRequestAlternativeByteHandler(envir(), fInputSocketNum); // in case we were receiving RTP-over-TCP
   fInputSocketNum = -1;
 
   return inputSocket;
@@ -831,7 +830,6 @@ Boolean RTSPClient::isRTSPClient() const {
 
 void RTSPClient::resetTCPSockets() {
   if (fInputSocketNum >= 0) {
-    RTPInterface::clearServerRequestAlternativeByteHandler(envir(), fInputSocketNum); // in case we were receiving RTP-over-TCP
     envir().taskScheduler().disableBackgroundHandling(fInputSocketNum);
     ::closeSocket(fInputSocketNum);
     if (fOutputSocketNum != fInputSocketNum) {
@@ -865,11 +863,9 @@ int RTSPClient::openConnection() {
     }
     
     // We don't yet have a TCP socket (or we used to have one, but it got closed).  Set it up now.
-    fInputSocketNum = setupStreamSocket(envir(), 0);
+    fInputSocketNum = fOutputSocketNum = setupStreamSocket(envir(), 0);
     if (fInputSocketNum < 0) break;
     ignoreSigPipeOnSocket(fInputSocketNum); // so that servers on the same host that get killed don't also kill us
-    if (fOutputSocketNum < 0) fOutputSocketNum = fInputSocketNum;
-    envir() << "Created new TCP socket " << fInputSocketNum << " for connection\n";
       
     // Connect to the remote endpoint:
     fServerAddress = *(netAddressBits*)(destAddress.data());
@@ -890,7 +886,7 @@ int RTSPClient::openConnection() {
 int RTSPClient::connectToServer(int socketNum, portNumBits remotePortNum) {
   MAKE_SOCKADDR_IN(remoteName, fServerAddress, htons(remotePortNum));
   if (fVerbosityLevel >= 1) {
-    envir() << "Connecting to " << AddressString(remoteName).val() << ", port " << remotePortNum << " on socket " << socketNum << "...\n";
+    envir() << "Opening connection to " << AddressString(remoteName).val() << ", port " << remotePortNum << "...\n";
   }
   if (connect(socketNum, (struct sockaddr*) &remoteName, sizeof remoteName) != 0) {
     int const err = envir().getErrno();
@@ -1193,7 +1189,6 @@ Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const*
 	  // So that we continue to receive & handle RTSP commands and responses from the server
 	subsession.rtpSource()->enableRTCPReports() = False;
 	  // To avoid confusing the server (which won't start handling RTP/RTCP-over-TCP until "PLAY"), don't send RTCP "RR"s yet
-	increaseReceiveBufferTo(envir(), fInputSocketNum, 50*1024);
       }
       if (subsession.rtcpInstance() != NULL) subsession.rtcpInstance()->setStreamSocket(fInputSocketNum, subsession.rtcpChannelId);
       RTPInterface::setServerRequestAlternativeByteHandler(envir(), fInputSocketNum, handleAlternativeRequestByte, this);
@@ -1212,26 +1207,26 @@ Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const*
   return success;
 }
 
-Boolean RTSPClient::handlePLAYResponse(MediaSession* session, MediaSubsession* subsession,
+Boolean RTSPClient::handlePLAYResponse(MediaSession& session, MediaSubsession& subsession,
                                        char const* scaleParamsStr, char const* speedParamsStr,
                                        char const* rangeParamsStr, char const* rtpInfoParamsStr) {
   Boolean scaleOK = False, rangeOK = False, speedOK = False;
   do {
-    if (session != NULL) {
+    if (&session != NULL) {
       // The command was on the whole session
-      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, session->scale())) break;
+      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, session.scale())) break;
       scaleOK = True;
-      if (speedParamsStr != NULL && !parseSpeedParam(speedParamsStr, session->speed())) break;
+      if (speedParamsStr != NULL && !parseSpeedParam(speedParamsStr, session.speed())) break;
       speedOK = True;
       Boolean startTimeIsNow;
       if (rangeParamsStr != NULL &&
 	  !parseRangeParam(rangeParamsStr,
-               session->playStartTime(), session->playEndTime(),
-               session->_absStartTime(), session->_absEndTime(),
+			   session.playStartTime(), session.playEndTime(),
+			   session._absStartTime(), session._absEndTime(),
 			   startTimeIsNow)) break;
       rangeOK = True;
 
-      MediaSubsessionIterator iter(*session);
+      MediaSubsessionIterator iter(session);
       MediaSubsession* subsession;
       while ((subsession = iter.next()) != NULL) {
 	u_int16_t seqNum; u_int32_t timestamp;
@@ -1246,27 +1241,27 @@ Boolean RTSPClient::handlePLAYResponse(MediaSession* session, MediaSubsession* s
       }
     } else {
       // The command was on a subsession
-      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, subsession->scale())) break;
+      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, subsession.scale())) break;
       scaleOK = True;
-      if (speedParamsStr != NULL && !parseSpeedParam(speedParamsStr, subsession->speed())) break;
+      if (speedParamsStr != NULL && !parseSpeedParam(speedParamsStr, session.speed())) break;
       speedOK = True;
       Boolean startTimeIsNow;
       if (rangeParamsStr != NULL &&
 	  !parseRangeParam(rangeParamsStr,
-               subsession->_playStartTime(), subsession->_playEndTime(),
-               subsession->_absStartTime(), subsession->_absEndTime(),
+			   subsession._playStartTime(), subsession._playEndTime(),
+			   subsession._absStartTime(), subsession._absEndTime(),
 			   startTimeIsNow)) break;
       rangeOK = True;
 
       u_int16_t seqNum; u_int32_t timestamp;
-      subsession->rtpInfo.infoIsNew = False;
+      subsession.rtpInfo.infoIsNew = False;
       if (parseRTPInfoParams(rtpInfoParamsStr, seqNum, timestamp)) {
-    subsession->rtpInfo.seqNum = seqNum;
-    subsession->rtpInfo.timestamp = timestamp;
-    subsession->rtpInfo.infoIsNew = True;
+	subsession.rtpInfo.seqNum = seqNum;
+	subsession.rtpInfo.timestamp = timestamp;
+	subsession.rtpInfo.infoIsNew = True;
       }
 
-      if (subsession->rtpSource() != NULL) subsession->rtpSource()->enableRTCPReports() = True; // start sending RTCP "RR"s now
+      if (subsession.rtpSource() != NULL) subsession.rtpSource()->enableRTCPReports() = True; // start sending RTCP "RR"s now
     }
 
     return True;
@@ -1300,7 +1295,7 @@ Boolean RTSPClient::handleGET_PARAMETERResponse(char const* parameterName, char*
       // ASSERT: parameterNameLen >= 2;
       parameterNameLen -= 2; // because of the trailing \r\n
       if (resultValueString + parameterNameLen > resultValueStringEnd) break; // not enough space
-      if (parameterNameLen > 0 && _strncasecmp(resultValueString, parameterName, parameterNameLen) == 0) {
+      if (_strncasecmp(resultValueString, parameterName, parameterNameLen) == 0) {
 	resultValueString += parameterNameLen;
 	// ASSERT: resultValueString <= resultValueStringEnd
 	if (resultValueString == resultValueStringEnd) break;
@@ -1441,8 +1436,7 @@ void RTSPClient::constructSubsessionURL(MediaSubsession const& subsession,
 
 Boolean RTSPClient::setupHTTPTunneling1() {
   // Set up RTSP-over-HTTP tunneling, as described in
-  //     http://mirror.informatimago.com/next/developer.apple.com/quicktime/icefloe/dispatch028.html
-  // and http://images.apple.com/br/quicktime/pdf/QTSS_Modules.pdf
+  //     http://developer.apple.com/quicktime/icefloe/dispatch028.html and http://images.apple.com/br/quicktime/pdf/QTSS_Modules.pdf
   if (fVerbosityLevel >= 1) {
     envir() << "Requesting RTSP-over-HTTP tunneling (on port " << fTunnelOverHTTPPortNum << ")\n\n";
   }
@@ -1721,21 +1715,8 @@ void RTSPClient::handleResponseBytes(int newBytesRead) {
 	} else if (checkForHeader(lineStart, "Session:", 8, sessionParamsStr)) {
 	} else if (checkForHeader(lineStart, "Transport:", 10, transportParamsStr)) {
 	} else if (checkForHeader(lineStart, "Scale:", 6, scaleParamsStr)) {
-	} else if (checkForHeader(lineStart, "Speed:",
-// NOTE: Should you feel the need to modify this code,
-				  6,
-// please first email the "live-devel" mailing list
-				  speedParamsStr
-// (see http://live555.com/liveMedia/faq.html#mailing-list-address for details),
-				  )) {
-// to check whether your proposed modification is appropriate/correct,
-	} else if (checkForHeader(lineStart, "Range:",
-// and, if so, whether instead it could be included in
-				  6,
-// a future release of the "LIVE555 Streaming Media" software,
-				  rangeParamsStr
-// so that other projects that use the code could benefit (not just your own project).
-				  )) {
+	} else if (checkForHeader(lineStart, "Speed:", 6, speedParamsStr)) {
+	} else if (checkForHeader(lineStart, "Range:", 6, rangeParamsStr)) {
 	} else if (checkForHeader(lineStart, "RTP-Info:", 9, rtpInfoParamsStr)) {
 	} else if (checkForHeader(lineStart, "WWW-Authenticate:", 17, headerParamsStr)) {
 	  // If we've already seen a "WWW-Authenticate:" header, then we replace it with this new one only if
@@ -1748,23 +1729,6 @@ void RTSPClient::handleResponseBytes(int newBytesRead) {
 	  // Note: we accept "Allow:" instead of "Public:", so that "OPTIONS" requests made to HTTP servers will work.
 	} else if (checkForHeader(lineStart, "Location:", 9, headerParamsStr)) {
 	  setBaseURL(headerParamsStr);
-	} else if (checkForHeader(lineStart, "com.ses.streamID:", 17, headerParamsStr)) {
-	  // Replace the tail of the 'base URL' with the value of this header parameter:
-	  char* oldBaseURLTail = strrchr(fBaseURL, '/');
-	  if (oldBaseURLTail != NULL) {
-	    unsigned newBaseURLLen
-	      = (oldBaseURLTail - fBaseURL) + 8/* for "/stream=" */ + strlen(headerParamsStr);
-	    char* newBaseURL = new char[newBaseURLLen + 1];
-	        // Note: We couldn't use "asprintf()", because some compilers don't support it
-	    sprintf(newBaseURL, "%.*s/stream=%s",
-		     (int)(oldBaseURLTail - fBaseURL), fBaseURL, headerParamsStr);
-	    setBaseURL(newBaseURL);
-	    delete[] newBaseURL;
-	  }
-	} else if (checkForHeader(lineStart, "Connection:", 11, headerParamsStr)) {
-	  if (fTunnelOverHTTPPortNum == 0 && _strncasecmp(headerParamsStr, "Close", 5) == 0) {
-	    resetTCPSockets();
-	  }
 	}
       }
       if (!reachedEndOfHeaders) break; // an error occurred
@@ -1819,9 +1783,9 @@ void RTSPClient::handleResponseBytes(int newBytesRead) {
 	if (responseCode == 200) {
 	  // Do special-case response handling for some commands:
 	  if (strcmp(foundRequest->commandName(), "SETUP") == 0) {
-        if (!handleSETUPResponse(*foundRequest->subsession(), sessionParamsStr, transportParamsStr, foundRequest->booleanFlags()&0x1)) break;
+	    if (!handleSETUPResponse(*foundRequest->subsession(), sessionParamsStr, transportParamsStr, foundRequest->booleanFlags()&0x1)) break;
 	  } else if (strcmp(foundRequest->commandName(), "PLAY") == 0) {
-        if (!handlePLAYResponse(foundRequest->session(), foundRequest->subsession(), scaleParamsStr, speedParamsStr, rangeParamsStr, rtpInfoParamsStr)) break;
+	    if (!handlePLAYResponse(*foundRequest->session(), *foundRequest->subsession(), scaleParamsStr, speedParamsStr, rangeParamsStr, rtpInfoParamsStr)) break;
 	  } else if (strcmp(foundRequest->commandName(), "TEARDOWN") == 0) {
 	    if (!handleTEARDOWNResponse(*foundRequest->session(), *foundRequest->subsession())) break;
 	  } else if (strcmp(foundRequest->commandName(), "GET_PARAMETER") == 0) {
@@ -1942,7 +1906,7 @@ RTSPClient::RequestQueue::RequestQueue(RequestQueue& origQueue)
 }
 
 RTSPClient::RequestQueue::~RequestQueue() {
-  reset();
+  delete fHead;
 }
 
 void RTSPClient::RequestQueue::enqueue(RequestRecord* request) {
@@ -1982,13 +1946,7 @@ RTSPClient::RequestRecord* RTSPClient::RequestQueue::findByCSeq(unsigned cseq) {
   return NULL;
 }
 
-void RTSPClient::RequestQueue::reset() {
-  delete fHead;
-  fHead = fTail = NULL;
-}
 
-
-#ifndef OMIT_REGISTER_HANDLING
 ////////// HandlerServerForREGISTERCommand implementation /////////
 
 HandlerServerForREGISTERCommand* HandlerServerForREGISTERCommand
@@ -2021,23 +1979,15 @@ char const* HandlerServerForREGISTERCommand::allowedCommandNames() {
   return "OPTIONS, REGISTER";
 }
 
-Boolean HandlerServerForREGISTERCommand
-::weImplementREGISTER(char const* cmd/*"REGISTER" or "DEREGISTER"*/,
-		      char const* /*proxyURLSuffix*/, char*& responseStr) {
+Boolean HandlerServerForREGISTERCommand::weImplementREGISTER(char const* proxyURLSuffix, char*& responseStr) {
   responseStr = NULL;
-  // By default, we implement only "REGISTER"; not "DEREGISTER".  Subclass to implement "DEREGISTER"
-  return strcmp(cmd, "REGISTER") == 0;
+  return True;
 }
 
-void HandlerServerForREGISTERCommand
-::implementCmd_REGISTER(char const* cmd/*"REGISTER" or "DEREGISTER"*/,
-			char const* url, char const* urlSuffix, int socketToRemoteServer,
-			Boolean deliverViaTCP, char const* /*proxyURLSuffix*/) {
-  if (strcmp(cmd, "REGISTER") == 0) { // By default, we don't implement "DEREGISTER"
-    // Create a new "RTSPClient" object, and call our 'creation function' with it:
-    RTSPClient* newRTSPClient = createNewRTSPClient(url, fVerbosityLevel, fApplicationName, socketToRemoteServer);
+void HandlerServerForREGISTERCommand::implementCmd_REGISTER(char const* url, char const* urlSuffix, int socketToRemoteServer,
+							    Boolean deliverViaTCP, char const* /*proxyURLSuffix*/) {
+  // Create a new "RTSPClient" object, and call our 'creation function' with it:
+  RTSPClient* newRTSPClient = createNewRTSPClient(url, fVerbosityLevel, fApplicationName, socketToRemoteServer);
 
-    if (fCreationFunc != NULL) (*fCreationFunc)(newRTSPClient, deliverViaTCP);
-  }
+  if (fCreationFunc != NULL) (*fCreationFunc)(newRTSPClient, deliverViaTCP);
 }
-#endif

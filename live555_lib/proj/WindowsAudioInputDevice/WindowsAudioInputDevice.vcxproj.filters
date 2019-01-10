@@ -15,6 +15,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.hh">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\..\WindowsAudioInputDevice\showAudioInputPorts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -27,16 +38,5 @@
     <ClCompile Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_common.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_mixer.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\WindowsAudioInputDevice\WindowsAudioInputDevice_noMixer.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

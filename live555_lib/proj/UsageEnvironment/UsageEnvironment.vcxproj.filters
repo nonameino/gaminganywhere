@@ -26,10 +26,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\UsageEnvironment\include\Boolean.hh" />
-    <None Include="..\..\UsageEnvironment\include\HashTable.hh" />
-    <None Include="..\..\UsageEnvironment\include\strDup.hh" />
-    <None Include="..\..\UsageEnvironment\include\UsageEnvironment.hh" />
-    <None Include="..\..\UsageEnvironment\include\UsageEnvironment_version.hh" />
+    <None Include="..\..\UsageEnvironment\include\Boolean.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\UsageEnvironment\include\HashTable.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\UsageEnvironment\include\strDup.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\UsageEnvironment\include\UsageEnvironment.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\UsageEnvironment\include\UsageEnvironment_version.hh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

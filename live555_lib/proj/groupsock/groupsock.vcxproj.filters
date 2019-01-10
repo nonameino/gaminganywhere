@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\groupsock\inet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\groupsock\GroupEId.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -22,9 +25,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\groupsock\GroupsockHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\groupsock\inet.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\groupsock\IOHandlers.cpp">
@@ -38,14 +38,30 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\groupsock\include\GroupEId.hh" />
-    <None Include="..\..\groupsock\include\Groupsock.hh" />
-    <None Include="..\..\groupsock\include\GroupsockHelper.hh" />
-    <None Include="..\..\groupsock\include\groupsock_version.hh" />
-    <None Include="..\..\groupsock\include\IOHandlers.hh" />
-    <None Include="..\..\groupsock\include\NetAddress.hh" />
-    <None Include="..\..\groupsock\include\NetInterface.hh" />
-    <None Include="..\..\groupsock\include\TunnelEncaps.hh" />
+    <None Include="..\..\groupsock\include\GroupEId.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\Groupsock.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\groupsock_version.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\GroupsockHelper.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\IOHandlers.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\NetAddress.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\NetInterface.hh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\groupsock\include\TunnelEncaps.hh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\groupsock\include\NetCommon.h">

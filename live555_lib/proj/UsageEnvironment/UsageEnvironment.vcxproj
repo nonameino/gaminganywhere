@@ -18,6 +18,18 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\UsageEnvironment\HashTable.cpp" />
+    <ClCompile Include="..\..\UsageEnvironment\strDup.cpp" />
+    <ClCompile Include="..\..\UsageEnvironment\UsageEnvironment.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\UsageEnvironment\include\Boolean.hh" />
+    <None Include="..\..\UsageEnvironment\include\HashTable.hh" />
+    <None Include="..\..\UsageEnvironment\include\strDup.hh" />
+    <None Include="..\..\UsageEnvironment\include\UsageEnvironment.hh" />
+    <None Include="..\..\UsageEnvironment\include\UsageEnvironment_version.hh" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7084CA6A-1C62-4B3A-9E3F-377321AE98D5}</ProjectGuid>
     <RootNamespace>UsageEnvironment</RootNamespace>
@@ -131,18 +143,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\UsageEnvironment\HashTable.cpp" />
-    <ClCompile Include="..\..\UsageEnvironment\strDup.cpp" />
-    <ClCompile Include="..\..\UsageEnvironment\UsageEnvironment.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\UsageEnvironment\include\Boolean.hh" />
-    <None Include="..\..\UsageEnvironment\include\HashTable.hh" />
-    <None Include="..\..\UsageEnvironment\include\strDup.hh" />
-    <None Include="..\..\UsageEnvironment\include\UsageEnvironment.hh" />
-    <None Include="..\..\UsageEnvironment\include\UsageEnvironment_version.hh" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

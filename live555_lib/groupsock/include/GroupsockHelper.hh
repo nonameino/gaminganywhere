@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "mTunnel" multicast access service
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // Helper routines to implement 'group sockets'
 // C++ header
 
@@ -27,7 +27,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 int setupDatagramSocket(UsageEnvironment& env, Port port);
 int setupStreamSocket(UsageEnvironment& env,
-		      Port port, Boolean makeNonBlocking = True, Boolean setKeepAlive = False);
+		      Port port, Boolean makeNonBlocking = True);
 
 int readSocket(UsageEnvironment& env,
 	       int socket, unsigned char* buffer, unsigned bufferSize,
@@ -59,7 +59,6 @@ unsigned increaseReceiveBufferTo(UsageEnvironment& env,
 Boolean makeSocketNonBlocking(int sock);
 Boolean makeSocketBlocking(int sock, unsigned writeTimeoutInMilliseconds = 0);
   // A "writeTimeoutInMilliseconds" value of 0 means: Don't timeout
-Boolean setSocketKeepAlive(int sock);
 
 Boolean socketJoinGroup(UsageEnvironment& env, int socket,
 			netAddressBits groupAddress);
@@ -131,11 +130,9 @@ _groupsockPriv* groupsockPriv(UsageEnvironment& env); // allocates it if necessa
 void reclaimGroupsockPriv(UsageEnvironment& env);
 
 
-#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__MINGW32__)
+#if defined(__WIN32__) || defined(_WIN32)
 // For Windoze, we need to implement our own gettimeofday()
 extern int gettimeofday(struct timeval*, int*);
-#else
-#include <sys/time.h>
 #endif
 
 // The following are implemented in inet.c:

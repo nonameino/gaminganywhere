@@ -1,7 +1,7 @@
 /**********
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your
+Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 
 This library is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2019 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2015 Live Networks, Inc.  All rights reserved.
 // A data structure that represents a session that consists of
 // potentially multiple (audio and/or video) sub-sessions
 // (This data structure is used for media *streamers* - i.e., servers.
@@ -56,11 +56,6 @@ public:
     // a result == 0 means an unbounded session (the default)
     // a result < 0 means: subsession durations differ; the result is -(the largest).
     // a result > 0 means: this is the duration of a bounded session
-
-  virtual void noteLiveness();
-    // called whenever a client - accessing this media - notes liveness.
-    // The default implementation does nothing, but subclasses can redefine this - e.g., if you
-    // want to remove long-unused "ServerMediaSession"s from the server.
 
   unsigned referenceCount() const { return fReferenceCount; }
   void incrementReferenceCount() { ++fReferenceCount; }

@@ -1,8 +1,8 @@
 ##### End of variables to change
 
 NAME = libBasicUsageEnvironment
-LIB_FILE = $(NAME).$(LIB_SUFFIX)
-ALL = $(LIB_FILE)
+LIB = $(NAME).$(LIB_SUFFIX)
+ALL = $(LIB)
 all:	$(ALL)
 
 OBJS = BasicUsageEnvironment0.$(OBJ) BasicUsageEnvironment.$(OBJ) \
