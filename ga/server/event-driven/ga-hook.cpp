@@ -402,6 +402,7 @@ create_d3d9_object() {
 
 static int
 hook_d9(const char *hook_type, const char *hook_method) {
+	GA_DBG("hook_d9()");
 	HMODULE hMod;
 	// GetCreateDeviceAddress
 	//ga_error("Start to hook Direct3DCreate9 ...");
@@ -520,6 +521,7 @@ hook_d11(const char *hook_type, const char *hook_method) {
 
 int
 do_hook(char *hook_type, int hook_type_sz) {
+	GA_DBG("do_hook()");
 	char *ptr, app_exe[1024], hook_method[1024];
 	char game_dir[1024];
 	char audio_type[64] = "";
@@ -529,35 +531,44 @@ do_hook(char *hook_type, int hook_type_sz) {
 		ga_error("*** CoInitializeEx failed.\n");
 	}
 	//
+	GA_DBG("ga_hook_init");
 	if(ga_hook_init() < 0)
 		return -1;
 	// handle ga-hook specific configurations
+	GA_DBG("ga_conf_readv(game - exe, app_exe, sizeof(app_exe))");
 	if((ptr = ga_conf_readv("game-exe", app_exe, sizeof(app_exe))) == NULL) {
 		ga_error("*** no game executable specified.\n");
 		return -1;
 	}
+	GA_DBG("ga_conf_readv(game - dir, game_dir, sizeof(game_dir))");
 	if((ptr = ga_conf_readv("game-dir", game_dir, sizeof(game_dir))) != NULL) {
 		SetCurrentDirectory(game_dir);
 		ga_error("gamedir: set to %s\n", game_dir);
 	}
+	GA_DBG("ga_conf_readv(hook - type, hook_type, hook_type_sz))");
 	if((ptr = ga_conf_readv("hook-type", hook_type, hook_type_sz)) == NULL) {
 		ga_error("*** no hook type specified.\n");
 		return -1;
 	}
+	GA_DBG("ga_conf_readv(hook - method, hook_method, sizeof(hook_method))");
 	if((ptr = ga_conf_readv("hook-method", hook_method, sizeof(hook_method))) != NULL) {
 		ga_error("*** hook method specified: %s\n", hook_method);
 	}
+	GA_DBG("ga_conf_readv(hook - audio, audio_type, sizeof(audio_type))");
 	if((ptr = ga_conf_readv("hook-audio", audio_type, sizeof(audio_type))) != NULL) {
 		ga_error("*** hook audio = %s\n", audio_type);
 	}
 	//
 	ga_error("[start-hook] exe=%s; type=%s\n", app_exe, hook_type);
 	//
+	GA_DBG("hook_input()");
 	if(hook_input() < 0)
 		return -1;
+	GA_DBG("hook_audio(audio_type)");
 	if(hook_audio(audio_type) < 0)
 		return -1;
 	// ---
+	GA_DBG("hook sdk");
 	if(strcasecmp(hook_type, "sdl") == 0) {
 		return hook_sdl12(hook_type, hook_method);
 	}
@@ -595,6 +606,7 @@ do_hook(char *hook_type, int hook_type_sz) {
 
 int
 hook_proc() {
+	GA_DBG("hook_proc");
 	char hook_type[64];
 	char cwd[1024];
 	pthread_t ga_server_thread;

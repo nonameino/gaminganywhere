@@ -63,6 +63,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ga-hook", "ga-hook\ga-hook.vcxproj", "{EACEE870-A658-4AD9-B91D-87A8677CD692}"
 	ProjectSection(ProjectDependencies) = postProject
 		{04C6CB4E-10AB-45F3-A6AB-C6EBA3CF4FB3} = {04C6CB4E-10AB-45F3-A6AB-C6EBA3CF4FB3}
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B} = {409AEFFA-CD68-44FB-81C8-C81E930E9A1B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server-ffmpeg", "module-server-ffmpeg\server-ffmpeg.vcxproj", "{200F3A9B-20C0-410F-8498-EAFE007A81B7}"
@@ -79,6 +80,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encoder-x264", "module-enco
 	ProjectSection(ProjectDependencies) = postProject
 		{04C6CB4E-10AB-45F3-A6AB-C6EBA3CF4FB3} = {04C6CB4E-10AB-45F3-A6AB-C6EBA3CF4FB3}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "..\..\..\..\Working\ProfileSummary-git\Sources\Clients\ATHUtils\core\core.vcxproj", "{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -216,6 +219,12 @@ Global
 		{8779D292-6EBE-4F46-80A7-52B093B28ED4}.Release|Win32.Build.0 = Release|Win32
 		{8779D292-6EBE-4F46-80A7-52B093B28ED4}.Release|x64.ActiveCfg = Release|x64
 		{8779D292-6EBE-4F46-80A7-52B093B28ED4}.Release|x64.Build.0 = Release|x64
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Debug|Win32.Build.0 = Debug|Win32
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Debug|x64.ActiveCfg = Debug|x64
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Release|Win32.ActiveCfg = Release|Win32
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Release|Win32.Build.0 = Release|Win32
+		{409AEFFA-CD68-44FB-81C8-C81E930E9A1B}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

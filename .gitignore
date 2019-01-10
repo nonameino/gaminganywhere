@@ -42,3 +42,4 @@
 *.user
 /live555_lib/proj/WindowsAudioInputDevice/x64
 /live555_lib/proj/.vs
+/games

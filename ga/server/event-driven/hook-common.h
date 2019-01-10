@@ -29,6 +29,9 @@
 #include <d3dx9tex.h>
 #include <dxerr.h>
 
+#include "Helper/NativeLogger.h"
+#define GA_DBG(...) Core::Helper::NativeLogger::debug("GA",__VA_ARGS__)
+
 #define DllImport   __declspec( dllimport )
 #define DllExport   __declspec( dllexport )
 

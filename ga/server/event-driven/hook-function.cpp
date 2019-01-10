@@ -273,6 +273,7 @@ DXGI_get_resolution(IDXGISwapChain *pSwapChain) {
 DllExport IDirect3D9* WINAPI
 hook_d3d(UINT SDKVersion)
 {
+	GA_DBG("hook_d3d()");
 	static int hooked_d3d9 = 0;
 	IDirect3D9 *pDirect3D9 = pD3d(SDKVersion);
 
@@ -304,6 +305,7 @@ hook_D3D9CreateDevice(
 		IDirect3DDevice9 **ppReturnedDeviceInterface
 	)
 {
+	GA_DBG("hook_D3D9CreateDevice");
 	static int createdevice_hooked = 0;
 
 	HRESULT hr = pD3D9CreateDevice(This, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
@@ -340,6 +342,7 @@ DllExport HRESULT __stdcall hook_D3D9GetSwapChain(
 		IDirect3DSwapChain9 **ppSwapChain
 	)
 {
+	GA_DBG("hook_D3D9GetSwapChain");
 	static int getswapchain_hooked = 0;
 
 	HRESULT hr = pD3D9GetSwapChain(This, iSwapChain, ppSwapChain);
@@ -412,6 +415,7 @@ DllExport HRESULT __stdcall hook_D3D9DevicePresent(
 		CONST RGNDATA* pDirtyRegion
 	)
 {
+	GA_DBG("hook_D3D9DevicePresent");
 	static int present_hooked = 0;
 
 	if (present_hooked == 0) {
