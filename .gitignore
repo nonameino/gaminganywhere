@@ -43,3 +43,5 @@
 /live555_lib/proj/WindowsAudioInputDevice/x64
 /live555_lib/proj/.vs
 /games
+/deps.win32__
+/live555_lib/proj/WindowsAudioInputDevice/Debug
