@@ -80,7 +80,7 @@ struct gaImage {
 EXPORT long long tvdiff_us(struct timeval *tv1, struct timeval *tv2);
 EXPORT long long ga_usleep(long long interval, struct timeval *ptv);
 EXPORT int	ga_log(const char *fmt, ...);
-EXPORT int	ga_error(const char *fmt, ...);
+EXPORT int	ga_error_(const char *fmt, ...);
 EXPORT int	ga_malloc(int size, void **ptr, int *alignment);
 EXPORT int	ga_alignment(void *ptr, int alignto);
 EXPORT long	ga_gettid();
@@ -120,3 +120,7 @@ EXPORT int	pthread_cancel(pthread_t thread);
 #endif
 
 #endif
+
+#include "Helper/NativeLogger.h"
+#define GA_DBG(fmt,...) ATH_DBG("GA",fmt,__VA_ARGS__)
+#define ga_error(fmt,...)	{ /*ga_error_(fmt,__VA_ARGS__); */GA_DBG(fmt,__VA_ARGS__);}

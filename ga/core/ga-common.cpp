@@ -195,7 +195,7 @@ ga_log(const char *fmt, ...) {
  */
 EXPORT
 int
-ga_error(const char *fmt, ...) {
+ga_error_(const char *fmt, ...) {
 	char msg[4096];
 	struct timeval tv;
 	va_list ap;
@@ -313,7 +313,7 @@ ga_dump_codecs() {
 		count++;
 	}
 	snprintf(ptr, sizeof(buf)-(ptr-buf), "(%d)\n", count);
-	ga_error(buf);
+	ga_error("%s", buf);
 	return;
 }
 
