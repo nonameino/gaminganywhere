@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="custom">
+      <UniqueIdentifier>{fc7b629c-b2e0-4f0f-aeec-66f31f435017}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\server\event-driven\ctrl-sdl.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="..\..\server\event-driven\ga-hook-coreaudio.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\event-driven\custom-hook.cpp">
+      <Filter>custom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="..\..\server\event-driven\sdl12-video.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\event-driven\custom-hook.h">
+      <Filter>custom</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

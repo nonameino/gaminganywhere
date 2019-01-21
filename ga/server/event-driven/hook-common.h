@@ -22,11 +22,12 @@
 #include <stdio.h>
 #include <windows.h>
 
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <d3d10_1.h>
-#include <d3d11.h>
-#include <d3dx9tex.h>
+//#include <d3d9.h>
+//#include <d3dx9.h>
+//#include <d3dx9tex.h>
+//#include <d3d10_1.h>
+//#include <d3d11.h>
+#include <d3d11_1.h>
 #include <dxerr.h>
 
 #define DllImport   __declspec( dllimport )
@@ -43,42 +44,42 @@ typedef HRESULT (STDMETHODCALLTYPE *TGetRawInputData) (
 // --- Common Release ---
 typedef ULONG (STDMETHODCALLTYPE *TRelease) (IUnknown *comobj);
 // --- DirectX 9 ---
-typedef IDirect3D9* (STDMETHODCALLTYPE *TDirect3DCreate9)(
-	UINT SDKVersion
-);
+//typedef IDirect3D9* (STDMETHODCALLTYPE *TDirect3DCreate9)(
+//	UINT SDKVersion
+//);
 
-typedef  HRESULT (STDMETHODCALLTYPE *TD3D9CreateDevice)( 
-	IDirect3DDevice9 * This,
-	UINT Adapter,
-	D3DDEVTYPE DeviceType,
-	HWND hFocusWindow,
-	DWORD BehaviorFlags,
-	D3DPRESENT_PARAMETERS *pPresentationParameters,
-	IDirect3DDevice9 **ppReturnedDeviceInterface
-);
+//typedef  HRESULT (STDMETHODCALLTYPE *TD3D9CreateDevice)( 
+//	IDirect3DDevice9 * This,
+//	UINT Adapter,
+//	D3DDEVTYPE DeviceType,
+//	HWND hFocusWindow,
+//	DWORD BehaviorFlags,
+//	D3DPRESENT_PARAMETERS *pPresentationParameters,
+//	IDirect3DDevice9 **ppReturnedDeviceInterface
+//);
 
-typedef  HRESULT (STDMETHODCALLTYPE *TD3D9DevicePresent)( 
-	IDirect3DDevice9 * This,
-	CONST RECT* pSourceRect,
-	CONST RECT* pDestRect,
-	HWND hDestWindowOverride,
-	CONST RGNDATA* pDirtyRegion
-);
+//typedef  HRESULT (STDMETHODCALLTYPE *TD3D9DevicePresent)( 
+//	IDirect3DDevice9 * This,
+//	CONST RECT* pSourceRect,
+//	CONST RECT* pDestRect,
+//	HWND hDestWindowOverride,
+//	CONST RGNDATA* pDirtyRegion
+//);
 
-typedef  HRESULT (STDMETHODCALLTYPE *TSwapChainPresent)( 
-	IDirect3DSwapChain9 * This,
-	CONST RECT* pSourceRect,
-	CONST RECT* pDestRect,
-	HWND hDestWindowOverride,
-	CONST RGNDATA* pDirtyRegion,
-	DWORD dwFlags
-);
+//typedef  HRESULT (STDMETHODCALLTYPE *TSwapChainPresent)( 
+//	IDirect3DSwapChain9 * This,
+//	CONST RECT* pSourceRect,
+//	CONST RECT* pDestRect,
+//	HWND hDestWindowOverride,
+//	CONST RGNDATA* pDirtyRegion,
+//	DWORD dwFlags
+//);
 
-typedef HRESULT (STDMETHODCALLTYPE *TD3D9GetSwapChain)(
-	IDirect3DDevice9 *This,
-	UINT iSwapChain,
-	IDirect3DSwapChain9 **ppSwapChain
-);
+//typedef HRESULT (STDMETHODCALLTYPE *TD3D9GetSwapChain)(
+//	IDirect3DDevice9 *This,
+//	UINT iSwapChain,
+//	IDirect3DSwapChain9 **ppSwapChain
+//);
 // ------
 
 #if 1
@@ -103,28 +104,28 @@ typedef HRESULT (STDMETHODCALLTYPE *TDXGICreateSwapChain) (
 // ------
 
 // --- DirectX 10 / 10.1 ---
-typedef HRESULT (STDMETHODCALLTYPE *TD3D10CreateDeviceAndSwapChain)(
-	IDXGIAdapter *pAdapter,
-	D3D10_DRIVER_TYPE DriverType,
-	HMODULE Software,
-	UINT Flags,
-	UINT SDKVersion,
-	DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-	IDXGISwapChain **ppSwapChain,
-	ID3D10Device **ppDevice
-);
+//typedef HRESULT (STDMETHODCALLTYPE *TD3D10CreateDeviceAndSwapChain)(
+//	IDXGIAdapter *pAdapter,
+//	D3D10_DRIVER_TYPE DriverType,
+//	HMODULE Software,
+//	UINT Flags,
+//	UINT SDKVersion,
+//	DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
+//	IDXGISwapChain **ppSwapChain,
+//	ID3D10Device **ppDevice
+//);
 
-typedef HRESULT (STDMETHODCALLTYPE *TD3D10CreateDeviceAndSwapChain1)(
-	IDXGIAdapter *pAdapter,
-	D3D10_DRIVER_TYPE DriverType,
-	HMODULE Software,
-	UINT Flags,
-	D3D10_FEATURE_LEVEL1 HardwareLevel,
-	UINT SDKVersion,
-	DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-	IDXGISwapChain **ppSwapChain,
-	ID3D10Device1 **ppDevice
-);
+//typedef HRESULT (STDMETHODCALLTYPE *TD3D10CreateDeviceAndSwapChain1)(
+//	IDXGIAdapter *pAdapter,
+//	D3D10_DRIVER_TYPE DriverType,
+//	HMODULE Software,
+//	UINT Flags,
+//	D3D10_FEATURE_LEVEL1 HardwareLevel,
+//	UINT SDKVersion,
+//	DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
+//	IDXGISwapChain **ppSwapChain,
+//	ID3D10Device1 **ppDevice
+//);
 // ------
 
 // --- DirectX 11 ---

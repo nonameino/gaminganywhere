@@ -42,6 +42,7 @@
 #include "ga-hook-gl.h"
 
 #include "easyhook.h"
+#include "custom-hook.h"
 
 static HMODULE hInst = NULL;
 static int hookid = 0;
@@ -290,141 +291,141 @@ hook_gl() {
 }
 
 // OLD D3D9 hook codes - disabled
-static int
-create_d3d9_object() {
-	HRESULT hr;
-	LPDIRECT3D9 pD3D = NULL;
-	LPDIRECT3DDEVICE9 pd3dDevice = NULL;
-	LPDIRECT3DSWAPCHAIN9 pSwapChain = NULL;
-	HMODULE hMod;
-	HWND hWnd;
-	//
-	D3DDISPLAYMODE d3ddm;
-	D3DCAPS9 d3dCaps;
-	DWORD dwBehaviorFlags = 0;
-	D3DPRESENT_PARAMETERS d3dpp;
+//static int
+//create_d3d9_object() {
+//	HRESULT hr;
+//	LPDIRECT3D9 pD3D = NULL;
+//	LPDIRECT3DDEVICE9 pd3dDevice = NULL;
+//	LPDIRECT3DSWAPCHAIN9 pSwapChain = NULL;
+//	HMODULE hMod;
+//	HWND hWnd;
+//	//
+//	D3DDISPLAYMODE d3ddm;
+//	D3DCAPS9 d3dCaps;
+//	DWORD dwBehaviorFlags = 0;
+//	D3DPRESENT_PARAMETERS d3dpp;
+//
+//	if((hMod = GetModuleHandle("d3d9.dll")) == NULL) {
+//		if((hMod = LoadLibrary("d3d9.dll")) == NULL) {
+//			ga_error("Load d3d9.dll failed.\n");
+//			return -1;
+//		}
+//	}
+//
+//	hWnd = CreateWindowA("BUTTON", 
+//			"Temporary Window", 
+//			WS_SYSMENU | WS_MINIMIZEBOX, 
+//			CW_USEDEFAULT, 
+//			CW_USEDEFAULT, 
+//			300, 300, 
+//			NULL, NULL, NULL, NULL);
+//	if (hWnd == NULL) {
+//		ga_error("CreateWindow failed.\n");
+//		return -1;
+//	}
+//			
+//	if((pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
+//		ga_error("Direct3DCreate9 failed.\n");
+//		return -1;
+//	}
+//
+//	// provide information for the current display mode for a
+//	// specified device d3d format
+//	if(FAILED(pD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm))) {
+//		ga_error("GetAdapterDisplayMode failed.\n");
+//		return -1;
+//	}
+//	ga_error("Display mode: w: %d, h: %d, rate: %d, format: %d\n",
+//		d3ddm.Width, d3ddm.Height, d3ddm.RefreshRate, d3ddm.Format);
+//
+//	// retrieve device-specific information about a device
+//	// D3DDEVTYPE_HAL: hardware rasterization, shading is done with software,
+//	//                 hardware, or mixed transform and lighting
+//	if(FAILED(pD3D->GetDeviceCaps(D3DADAPTER_DEFAULT, 
+//				D3DDEVTYPE_HAL, &d3dCaps))) {
+//		ga_error("GetDeviceCaps failed.\n");
+//		return -1;
+//	}
+//	ga_error("Device information: type: %d, intervals: %d", 
+//		d3dCaps.DeviceType, d3dCaps.PresentationIntervals);
+//	//
+//	if(d3dCaps.VertexProcessingCaps != 0 ) {
+//		dwBehaviorFlags |= D3DCREATE_HARDWARE_VERTEXPROCESSING;
+//	} else {
+//		dwBehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+//	}
+//
+//	ZeroMemory(&d3dpp, sizeof(d3dpp));
+//
+//	d3dpp.BackBufferFormat		= d3ddm.Format;
+//	//d3dpp.BackBufferHeight	= d3ddm.Height;
+//	//d3dpp.BackBufferWidth		= d3ddm.Width;
+//	d3dpp.SwapEffect		= D3DSWAPEFFECT_DISCARD;
+//	d3dpp.Windowed			= TRUE; //FALSE;
+//	d3dpp.EnableAutoDepthStencil	= TRUE;
+//	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
+//	d3dpp.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
+//	d3dpp.Flags			= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+//
+//	hr = pD3D->CreateDevice(D3DADAPTER_DEFAULT, 
+//				D3DDEVTYPE_HAL, 
+//				hWnd,
+//				dwBehaviorFlags, 
+//				&d3dpp, 
+//				&pd3dDevice);
+//	if(FAILED(hr)){
+//		ga_error("CreateDevice failed.: %s\n", DXGetErrorString(hr));
+//		return -1;
+//	}
+//
+//	// start to hook D3D9DevicePresent()
+//	// 17: IDirect3DDevice9::Present
+//	uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pd3dDevice;
+//	pD3D9DevicePresent = (TD3D9DevicePresent)pInterfaceVTable[17];
+//	//OutputDebugString("Start to hook IDirect3DDevice9::Present");
+//
+//	// start to hook D3D9SwapChainPresent()
+//	// 3: IDirect3DSwapChain9::Present
+//	pd3dDevice->GetSwapChain(0, &pSwapChain);
+//	uintptr_t* pInterfaceVTable2 = (uintptr_t*)*(uintptr_t*)pSwapChain;
+//	pSwapChainPresent = (TSwapChainPresent)pInterfaceVTable2[3];
+//	//OutputDebugString("Start to hook IDirect3DSwapChain9::Present");
+//
+//	ga_hook_function("D3D9DevicePresent", pD3D9DevicePresent, hook_D3D9DevicePresent);
+//	ga_hook_function("D3D9SwapChainPresent", pSwapChainPresent, hook_D3D9SwapChainPresent);
+//
+//	pd3dDevice->Release();
+//	pD3D->Release();
+//	DestroyWindow(hWnd);
+//
+//	return 0;
+//}
 
-	if((hMod = GetModuleHandle("d3d9.dll")) == NULL) {
-		if((hMod = LoadLibrary("d3d9.dll")) == NULL) {
-			ga_error("Load d3d9.dll failed.\n");
-			return -1;
-		}
-	}
-
-	hWnd = CreateWindowA("BUTTON", 
-			"Temporary Window", 
-			WS_SYSMENU | WS_MINIMIZEBOX, 
-			CW_USEDEFAULT, 
-			CW_USEDEFAULT, 
-			300, 300, 
-			NULL, NULL, NULL, NULL);
-	if (hWnd == NULL) {
-		ga_error("CreateWindow failed.\n");
-		return -1;
-	}
-			
-	if((pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
-		ga_error("Direct3DCreate9 failed.\n");
-		return -1;
-	}
-
-	// provide information for the current display mode for a
-	// specified device d3d format
-	if(FAILED(pD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm))) {
-		ga_error("GetAdapterDisplayMode failed.\n");
-		return -1;
-	}
-	ga_error("Display mode: w: %d, h: %d, rate: %d, format: %d\n",
-		d3ddm.Width, d3ddm.Height, d3ddm.RefreshRate, d3ddm.Format);
-
-	// retrieve device-specific information about a device
-	// D3DDEVTYPE_HAL: hardware rasterization, shading is done with software,
-	//                 hardware, or mixed transform and lighting
-	if(FAILED(pD3D->GetDeviceCaps(D3DADAPTER_DEFAULT, 
-				D3DDEVTYPE_HAL, &d3dCaps))) {
-		ga_error("GetDeviceCaps failed.\n");
-		return -1;
-	}
-	ga_error("Device information: type: %d, intervals: %d", 
-		d3dCaps.DeviceType, d3dCaps.PresentationIntervals);
-	//
-	if(d3dCaps.VertexProcessingCaps != 0 ) {
-		dwBehaviorFlags |= D3DCREATE_HARDWARE_VERTEXPROCESSING;
-	} else {
-		dwBehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-	}
-
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-
-	d3dpp.BackBufferFormat		= d3ddm.Format;
-	//d3dpp.BackBufferHeight	= d3ddm.Height;
-	//d3dpp.BackBufferWidth		= d3ddm.Width;
-	d3dpp.SwapEffect		= D3DSWAPEFFECT_DISCARD;
-	d3dpp.Windowed			= TRUE; //FALSE;
-	d3dpp.EnableAutoDepthStencil	= TRUE;
-	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
-	d3dpp.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
-	d3dpp.Flags			= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
-
-	hr = pD3D->CreateDevice(D3DADAPTER_DEFAULT, 
-				D3DDEVTYPE_HAL, 
-				hWnd,
-				dwBehaviorFlags, 
-				&d3dpp, 
-				&pd3dDevice);
-	if(FAILED(hr)){
-		ga_error("CreateDevice failed.: %s\n", DXGetErrorString(hr));
-		return -1;
-	}
-
-	// start to hook D3D9DevicePresent()
-	// 17: IDirect3DDevice9::Present
-	uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pd3dDevice;
-	pD3D9DevicePresent = (TD3D9DevicePresent)pInterfaceVTable[17];
-	//OutputDebugString("Start to hook IDirect3DDevice9::Present");
-
-	// start to hook D3D9SwapChainPresent()
-	// 3: IDirect3DSwapChain9::Present
-	pd3dDevice->GetSwapChain(0, &pSwapChain);
-	uintptr_t* pInterfaceVTable2 = (uintptr_t*)*(uintptr_t*)pSwapChain;
-	pSwapChainPresent = (TSwapChainPresent)pInterfaceVTable2[3];
-	//OutputDebugString("Start to hook IDirect3DSwapChain9::Present");
-
-	ga_hook_function("D3D9DevicePresent", pD3D9DevicePresent, hook_D3D9DevicePresent);
-	ga_hook_function("D3D9SwapChainPresent", pSwapChainPresent, hook_D3D9SwapChainPresent);
-
-	pd3dDevice->Release();
-	pD3D->Release();
-	DestroyWindow(hWnd);
-
-	return 0;
-}
-
-static int
-hook_d9(const char *hook_type, const char *hook_method) {
-	GA_DBG("hook_d9()");
-	HMODULE hMod;
-	// GetCreateDeviceAddress
-	//ga_error("Start to hook Direct3DCreate9 ...");
-	//
-	if((hMod = GetModuleHandle("d3d9.dll")) == NULL) {
-		if((hMod = LoadLibrary("d3d9.dll")) == NULL) {
-			ga_error("Load d3d9.dll failed.\n");
-			return -1;
-		}
-	}
-	// Direct3DCreate9()
-	pD3d = (TDirect3DCreate9)
-		GetProcAddress(hMod, "Direct3DCreate9");
-	if(pD3d == NULL) {
-		ga_error("GetProcAddress(Direct3DCreate9) failed.\n");
-		return -1;
-	}
-	//
-	ga_hook_function("Direct3DCreate9", pD3d, hook_d3d);
-	//
-	return 0;
-}
+//static int
+//hook_d9(const char *hook_type, const char *hook_method) {
+//	GA_DBG("hook_d9()");
+//	HMODULE hMod;
+//	// GetCreateDeviceAddress
+//	//ga_error("Start to hook Direct3DCreate9 ...");
+//	//
+//	if((hMod = GetModuleHandle("d3d9.dll")) == NULL) {
+//		if((hMod = LoadLibrary("d3d9.dll")) == NULL) {
+//			ga_error("Load d3d9.dll failed.\n");
+//			return -1;
+//		}
+//	}
+//	// Direct3DCreate9()
+//	pD3d = (TDirect3DCreate9)
+//		GetProcAddress(hMod, "Direct3DCreate9");
+//	if(pD3d == NULL) {
+//		ga_error("GetProcAddress(Direct3DCreate9) failed.\n");
+//		return -1;
+//	}
+//	//
+//	ga_hook_function("Direct3DCreate9", pD3d, hook_d3d);
+//	//
+//	return 0;
+//}
 
 static int
 hook_dxgi(const char *hook_type, const char *hook_method) {
@@ -447,53 +448,53 @@ hook_dxgi(const char *hook_type, const char *hook_method) {
 	return 0;
 }
 
-static int
-hook_d10_1(const char *hook_type, const char *hook_method) {
-	HMODULE hMod;
-	//
-	if((hMod = GetModuleHandle("d3d10_1.dll")) == NULL) {
-		if((hMod = LoadLibrary("d3d10_1.dll")) == NULL) {
-			ga_error("Load d3d10_1.dll failed.\n");
-			return -1;
-		}
-	}
-	//
-	pD3D10CreateDeviceAndSwapChain1 = (TD3D10CreateDeviceAndSwapChain1)
-		GetProcAddress(hMod, "D3D10CreateDeviceAndSwapChain1");
-	if (pD3D10CreateDeviceAndSwapChain1 == NULL) {
-		ga_error("GetProcAddress(D3D10CreateDeviceAndSwapChain1) failed.\n");
-		return -1;
-	}
-	//
-	ga_hook_function("D3D10CreateDeviceAndSwapChain1",
-		pD3D10CreateDeviceAndSwapChain1,
-		hook_D3D10CreateDeviceAndSwapChain1);
-	return 0;
-}
+//static int
+//hook_d10_1(const char *hook_type, const char *hook_method) {
+//	HMODULE hMod;
+//	//
+//	if((hMod = GetModuleHandle("d3d10_1.dll")) == NULL) {
+//		if((hMod = LoadLibrary("d3d10_1.dll")) == NULL) {
+//			ga_error("Load d3d10_1.dll failed.\n");
+//			return -1;
+//		}
+//	}
+//	//
+//	pD3D10CreateDeviceAndSwapChain1 = (TD3D10CreateDeviceAndSwapChain1)
+//		GetProcAddress(hMod, "D3D10CreateDeviceAndSwapChain1");
+//	if (pD3D10CreateDeviceAndSwapChain1 == NULL) {
+//		ga_error("GetProcAddress(D3D10CreateDeviceAndSwapChain1) failed.\n");
+//		return -1;
+//	}
+//	//
+//	ga_hook_function("D3D10CreateDeviceAndSwapChain1",
+//		pD3D10CreateDeviceAndSwapChain1,
+//		hook_D3D10CreateDeviceAndSwapChain1);
+//	return 0;
+//}
 
-static int
-hook_d10(const char *hook_type, const char *hook_method) {
-	HMODULE hMod;
-	//
-	if((hMod = GetModuleHandle("d3d10.dll")) == NULL) {
-		if((hMod = LoadLibrary("d3d10.dll")) == NULL) {
-			ga_error("Load d3d10.dll failed.\n");
-			return -1;
-		}
-	}
-	//
-	pD3D10CreateDeviceAndSwapChain = (TD3D10CreateDeviceAndSwapChain)
-		GetProcAddress(hMod, "D3D10CreateDeviceAndSwapChain");
-	if (pD3D10CreateDeviceAndSwapChain == NULL) {
-		ga_error("GetProcAddress(D3D10CreateDeviceAndSwapChain) failed.\n");
-		return -1;
-	}
-	//
-	ga_hook_function("D3D10CreateDeviceAndSwapChain",
-		pD3D10CreateDeviceAndSwapChain,
-		hook_D3D10CreateDeviceAndSwapChain);
-	return 0;
-}
+//static int
+//hook_d10(const char *hook_type, const char *hook_method) {
+//	HMODULE hMod;
+//	//
+//	if((hMod = GetModuleHandle("d3d10.dll")) == NULL) {
+//		if((hMod = LoadLibrary("d3d10.dll")) == NULL) {
+//			ga_error("Load d3d10.dll failed.\n");
+//			return -1;
+//		}
+//	}
+//	//
+//	pD3D10CreateDeviceAndSwapChain = (TD3D10CreateDeviceAndSwapChain)
+//		GetProcAddress(hMod, "D3D10CreateDeviceAndSwapChain");
+//	if (pD3D10CreateDeviceAndSwapChain == NULL) {
+//		ga_error("GetProcAddress(D3D10CreateDeviceAndSwapChain) failed.\n");
+//		return -1;
+//	}
+//	//
+//	ga_hook_function("D3D10CreateDeviceAndSwapChain",
+//		pD3D10CreateDeviceAndSwapChain,
+//		hook_D3D10CreateDeviceAndSwapChain);
+//	return 0;
+//}
 
 static int
 hook_d11(const char *hook_type, const char *hook_method) {
@@ -579,25 +580,29 @@ do_hook(char *hook_type, int hook_type_sz) {
 		return hook_gl();
 	}
 	// d9?
-	if(strcasecmp(hook_type, "d9") == 0) {
+	/*if(strcasecmp(hook_type, "d9") == 0) {
 		return hook_d9(hook_type, hook_method);
-	}
+	}*/
 	// dxgi?
 	if(strcasecmp(hook_type, "dxgi") == 0) {
 	//if(strstr(hook_method, "GetDXGIFactoryAddress") != NULL)
 		return hook_dxgi(hook_type, hook_method);
 	}
 	// d10?
-	if(strcasecmp(hook_type, "d10") == 0) {
+	/*if(strcasecmp(hook_type, "d10") == 0) {
 		return hook_d10(hook_type, hook_method);
-	}
+	}*/
 	// d10.1?
-	if(strcasecmp(hook_type, "d10.1") == 0) {
+	/*if(strcasecmp(hook_type, "d10.1") == 0) {
 		return hook_d10_1(hook_type, hook_method);
-	}
+	}*/
 	// d11?
 	if(strcasecmp(hook_type, "d11") == 0) {
 		return hook_d11(hook_type, hook_method);
+	}
+	// d11.1?
+	if (strcasecmp(hook_type, "d11.1") == 0) {
+		return hook_d11_1(hook_type, hook_method);
 	}
 	//
 	ga_error("Unsupported hook type (%s)\n", hook_type);

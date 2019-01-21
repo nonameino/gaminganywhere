@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\server\event-driven\ctrl-sdl.cpp" />
+    <ClCompile Include="..\..\server\event-driven\custom-hook.cpp" />
     <ClCompile Include="..\..\server\event-driven\ga-hook-common.cpp" />
     <ClCompile Include="..\..\server\event-driven\ga-hook-coreaudio.cpp" />
     <ClCompile Include="..\..\server\event-driven\ga-hook-sdlaudio.cpp" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\server\event-driven\ctrl-sdl.h" />
+    <ClInclude Include="..\..\server\event-driven\custom-hook.h" />
     <ClInclude Include="..\..\server\event-driven\ga-hook-common.h" />
     <ClInclude Include="..\..\server\event-driven\ga-hook-coreaudio.h" />
     <ClInclude Include="..\..\server\event-driven\ga-hook-sdlaudio.h" />

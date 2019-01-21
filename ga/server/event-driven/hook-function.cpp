@@ -26,6 +26,7 @@
 
 #include "ga-hook-common.h"
 #include "hook-function.h"
+#include "custom-hook.h"
 
 #include <GL/glu.h>
 
@@ -33,15 +34,15 @@
 TGetRawInputData pGetRawInputData = NULL;
 HANDLE tmpRawKeyDevice = NULL; 
 // --- DirectX 9 ---
-TDirect3DCreate9 pD3d = NULL;
-TD3D9CreateDevice pD3D9CreateDevice = NULL;
-TD3D9GetSwapChain pD3D9GetSwapChain = NULL;
-TD3D9DevicePresent pD3D9DevicePresent = NULL;
-TSwapChainPresent pSwapChainPresent = NULL;
-D3DFORMAT pD3DFORMAT = D3DFMT_UNKNOWN;
+//TDirect3DCreate9 pD3d = NULL;
+//TD3D9CreateDevice pD3D9CreateDevice = NULL;
+//TD3D9GetSwapChain pD3D9GetSwapChain = NULL;
+//TD3D9DevicePresent pD3D9DevicePresent = NULL;
+//TSwapChainPresent pSwapChainPresent = NULL;
+//D3DFORMAT pD3DFORMAT = D3DFMT_UNKNOWN;
 // --- DirectX 10 / 10.1 ---
-TD3D10CreateDeviceAndSwapChain pD3D10CreateDeviceAndSwapChain = NULL;
-TD3D10CreateDeviceAndSwapChain1 pD3D10CreateDeviceAndSwapChain1 = NULL;
+//TD3D10CreateDeviceAndSwapChain pD3D10CreateDeviceAndSwapChain = NULL;
+//TD3D10CreateDeviceAndSwapChain1 pD3D10CreateDeviceAndSwapChain1 = NULL;
 // --- DirectX 11 ---
 TD3D11CreateDeviceAndSwapChain pD3D11CreateDeviceAndSwapChain = NULL;
 // --- DXGI ---
@@ -53,202 +54,202 @@ TDXGICreateSwapChain pDXGICreateSwapChain = NULL;
 
 //////// internal functions
 
-static IDirect3DSurface9 *resolvedSurface = NULL;
-static IDirect3DSurface9 *offscreenSurface = NULL;
+//static IDirect3DSurface9 *resolvedSurface = NULL;
+//static IDirect3DSurface9 *offscreenSurface = NULL;
 
-static bool
-D3D9_screen_capture(IDirect3DDevice9 * pDevice) {
-	static int frame_interval;
-	static LARGE_INTEGER initialTv, captureTv, freq;
-	static int capture_initialized = 0;
-	//
-	HRESULT hr;
-	D3DSURFACE_DESC desc;
-	IDirect3DSurface9 *renderSurface, *oldRenderSurface;
-	D3DLOCKED_RECT lockedRect;
-	int i;
-	dpipe_buffer_t *data;
-	vsource_frame_t *frame;
-	//
-	if(vsource_initialized == 0)
-		return false;
-	//
-	renderSurface = oldRenderSurface = NULL;
-	//
-	hr = pDevice->GetRenderTarget(0, &renderSurface);
-	if (FAILED(hr)) {
-		if (hr == D3DERR_INVALIDCALL) {
-			ga_error("GetRenderTarget failed (INVALIDCALL)\n");
-		} else if (hr == D3DERR_NOTFOUND) {
-			ga_error("GetRenderTarget failed (D3DERR_NOTFOUND)\n");
-		} else {
-			ga_error("GetRenderTarget failed. (other)\n");
-		}
-	}
-	if (renderSurface == NULL) {
-		ga_error("renderSurface == NULL.\n");
-		return false;
-	}
-	
-	renderSurface->GetDesc(&desc);
+//static bool
+//D3D9_screen_capture(IDirect3DDevice9 * pDevice) {
+//	static int frame_interval;
+//	static LARGE_INTEGER initialTv, captureTv, freq;
+//	static int capture_initialized = 0;
+//	//
+//	HRESULT hr;
+//	D3DSURFACE_DESC desc;
+//	IDirect3DSurface9 *renderSurface, *oldRenderSurface;
+//	D3DLOCKED_RECT lockedRect;
+//	int i;
+//	dpipe_buffer_t *data;
+//	vsource_frame_t *frame;
+//	//
+//	if(vsource_initialized == 0)
+//		return false;
+//	//
+//	renderSurface = oldRenderSurface = NULL;
+//	//
+//	hr = pDevice->GetRenderTarget(0, &renderSurface);
+//	if (FAILED(hr)) {
+//		if (hr == D3DERR_INVALIDCALL) {
+//			ga_error("GetRenderTarget failed (INVALIDCALL)\n");
+//		} else if (hr == D3DERR_NOTFOUND) {
+//			ga_error("GetRenderTarget failed (D3DERR_NOTFOUND)\n");
+//		} else {
+//			ga_error("GetRenderTarget failed. (other)\n");
+//		}
+//	}
+//	if (renderSurface == NULL) {
+//		ga_error("renderSurface == NULL.\n");
+//		return false;
+//	}
+//	
+//	renderSurface->GetDesc(&desc);
+//
+//	if(desc.Width != game_width
+//	|| desc.Height != game_height) {
+//		return false;
+//	}
+//
+//	if (capture_initialized == 0) {
+//		frame_interval = 1000000/video_fps; // in the unif of us
+//		frame_interval++;
+//		QueryPerformanceFrequency(&freq);
+//		QueryPerformanceCounter(&initialTv);
+//		capture_initialized = 1;
+//	} else {
+//		QueryPerformanceCounter(&captureTv);
+//	}
+//	
+//	// check if the surface of local game enable multisampling,
+//	// multisampling enabled will avoid locking in the surface
+//	// if yes, create a no-multisampling surface and copy frame into it
+//	if (desc.MultiSampleType != D3DMULTISAMPLE_NONE) {
+//		if(resolvedSurface == NULL) {
+//			hr = pDevice->CreateRenderTarget(game_width, game_height,
+//					desc.Format,
+//					D3DMULTISAMPLE_NONE,
+//					0,			// non multisampleQuality
+//					FALSE,			// lockable
+//					&resolvedSurface, NULL);
+//			if (FAILED(hr)) {
+//				ga_error("CreateRenderTarget(resolvedSurface) failed.\n");
+//				return false;
+//			}
+//		}
+//
+//		hr = pDevice->StretchRect(renderSurface, NULL,
+//					resolvedSurface, NULL, D3DTEXF_NONE);
+//		if (FAILED(hr)) {
+//			ga_error("StretchRect failed.\n");
+//			return false;
+//		}
+//		
+//		oldRenderSurface = renderSurface;
+//		renderSurface = resolvedSurface;
+//	}
+//
+//	// create offline surface in system memory
+//	if(offscreenSurface == NULL) {
+//		hr = pDevice->CreateOffscreenPlainSurface(game_width, game_height, 
+//				desc.Format,
+//				D3DPOOL_SYSTEMMEM,
+//				&offscreenSurface, NULL);
+//		if (FAILED(hr)) {
+//			ga_error("Create offscreen surface failed.\n");
+//			return false;
+//		}
+//	}
+//	
+//	// copy the render-target data from device memory to system memory
+//	hr = pDevice->GetRenderTargetData(renderSurface, offscreenSurface);
+//
+//	if (FAILED(hr)) {
+//		ga_error("GetRenderTargetData failed.\n");
+//		if(oldRenderSurface)
+//			oldRenderSurface->Release();
+//		else
+//			renderSurface->Release();
+//		return false;
+//	}	
+//	
+//	if(oldRenderSurface)
+//		oldRenderSurface->Release();
+//	else
+//		renderSurface->Release();
+//
+//	// start to lock screen from offline surface
+//	hr = offscreenSurface->LockRect(&lockedRect, NULL, NULL);
+//	if (FAILED(hr)) {
+//		ga_error("LockRect failed.\n");
+//		return false;
+//	}
+//
+//	// copy image 
+//	do {
+//		unsigned char *src, *dst;
+//		data = dpipe_get(g_pipe[0]);
+//		frame = (vsource_frame_t*) data->pointer;
+//		frame->pixelformat = PIX_FMT_BGRA;
+//		frame->realwidth = desc.Width;
+//		frame->realheight = desc.Height;
+//		frame->realstride = desc.Width<<2;
+//		frame->realsize = frame->realwidth * frame->realstride;
+//		frame->linesize[0] = frame->realstride;//frame->stride;
+//		//
+//		src = (unsigned char*) lockedRect.pBits;
+//		dst = (unsigned char*) frame->imgbuf;
+//		for (i = 0; i < encoder_height; i++) {
+//			//memcpy(frame->imgbuf+i*encoder_width*sizeof(DWORD), (BYTE *)lockedRect.pBits+i*lockedRect.Pitch, 1*encoder_width*sizeof(DWORD));
+//			//CopyMemory(frame->imgbuf, lockedRect.pBits, lockedRect.Pitch * screenRect.bottom);
+//			CopyMemory(dst, src, frame->realstride/*frame->stride*/);
+//			src += lockedRect.Pitch;
+//			dst += frame->realstride;//frame->stride;
+//		}
+//		frame->imgpts = pcdiff_us(captureTv, initialTv, freq)/frame_interval;
+//		gettimeofday(&frame->timestamp, NULL);
+//	} while(0);
+//
+//	// duplicate from channel 0 to other channels
+//	for(i = 1; i < SOURCES; i++) {
+//		int j;
+//		dpipe_buffer_t *dupdata;
+//		vsource_frame_t *dupframe;
+//		dupdata = dpipe_get(g_pipe[i]);
+//		dupframe = (vsource_frame_t*) dupdata->pointer;
+//		//
+//		vsource_dup_frame(frame, dupframe);
+//		//
+//		dpipe_store(g_pipe[i], dupdata);
+//	}
+//	dpipe_store(g_pipe[0], data);
+//	
+//	offscreenSurface->UnlockRect();
+//#if 1	// XXX: disable until we have found a good place to safely Release()
+//	if(hook_boost == 0) {
+//		if(offscreenSurface != NULL) {
+//			offscreenSurface->Release();
+//			offscreenSurface = NULL;
+//		}
+//		if(resolvedSurface != NULL) {
+//			resolvedSurface->Release();
+//			resolvedSurface = NULL;
+//		}
+//	}
+//#endif
+//		
+//	return true;
+//}
 
-	if(desc.Width != game_width
-	|| desc.Height != game_height) {
-		return false;
-	}
-
-	if (capture_initialized == 0) {
-		frame_interval = 1000000/video_fps; // in the unif of us
-		frame_interval++;
-		QueryPerformanceFrequency(&freq);
-		QueryPerformanceCounter(&initialTv);
-		capture_initialized = 1;
-	} else {
-		QueryPerformanceCounter(&captureTv);
-	}
-	
-	// check if the surface of local game enable multisampling,
-	// multisampling enabled will avoid locking in the surface
-	// if yes, create a no-multisampling surface and copy frame into it
-	if (desc.MultiSampleType != D3DMULTISAMPLE_NONE) {
-		if(resolvedSurface == NULL) {
-			hr = pDevice->CreateRenderTarget(game_width, game_height,
-					desc.Format,
-					D3DMULTISAMPLE_NONE,
-					0,			// non multisampleQuality
-					FALSE,			// lockable
-					&resolvedSurface, NULL);
-			if (FAILED(hr)) {
-				ga_error("CreateRenderTarget(resolvedSurface) failed.\n");
-				return false;
-			}
-		}
-
-		hr = pDevice->StretchRect(renderSurface, NULL,
-					resolvedSurface, NULL, D3DTEXF_NONE);
-		if (FAILED(hr)) {
-			ga_error("StretchRect failed.\n");
-			return false;
-		}
-		
-		oldRenderSurface = renderSurface;
-		renderSurface = resolvedSurface;
-	}
-
-	// create offline surface in system memory
-	if(offscreenSurface == NULL) {
-		hr = pDevice->CreateOffscreenPlainSurface(game_width, game_height, 
-				desc.Format,
-				D3DPOOL_SYSTEMMEM,
-				&offscreenSurface, NULL);
-		if (FAILED(hr)) {
-			ga_error("Create offscreen surface failed.\n");
-			return false;
-		}
-	}
-	
-	// copy the render-target data from device memory to system memory
-	hr = pDevice->GetRenderTargetData(renderSurface, offscreenSurface);
-
-	if (FAILED(hr)) {
-		ga_error("GetRenderTargetData failed.\n");
-		if(oldRenderSurface)
-			oldRenderSurface->Release();
-		else
-			renderSurface->Release();
-		return false;
-	}	
-	
-	if(oldRenderSurface)
-		oldRenderSurface->Release();
-	else
-		renderSurface->Release();
-
-	// start to lock screen from offline surface
-	hr = offscreenSurface->LockRect(&lockedRect, NULL, NULL);
-	if (FAILED(hr)) {
-		ga_error("LockRect failed.\n");
-		return false;
-	}
-
-	// copy image 
-	do {
-		unsigned char *src, *dst;
-		data = dpipe_get(g_pipe[0]);
-		frame = (vsource_frame_t*) data->pointer;
-		frame->pixelformat = PIX_FMT_BGRA;
-		frame->realwidth = desc.Width;
-		frame->realheight = desc.Height;
-		frame->realstride = desc.Width<<2;
-		frame->realsize = frame->realwidth * frame->realstride;
-		frame->linesize[0] = frame->realstride;//frame->stride;
-		//
-		src = (unsigned char*) lockedRect.pBits;
-		dst = (unsigned char*) frame->imgbuf;
-		for (i = 0; i < encoder_height; i++) {
-			//memcpy(frame->imgbuf+i*encoder_width*sizeof(DWORD), (BYTE *)lockedRect.pBits+i*lockedRect.Pitch, 1*encoder_width*sizeof(DWORD));
-			//CopyMemory(frame->imgbuf, lockedRect.pBits, lockedRect.Pitch * screenRect.bottom);
-			CopyMemory(dst, src, frame->realstride/*frame->stride*/);
-			src += lockedRect.Pitch;
-			dst += frame->realstride;//frame->stride;
-		}
-		frame->imgpts = pcdiff_us(captureTv, initialTv, freq)/frame_interval;
-		gettimeofday(&frame->timestamp, NULL);
-	} while(0);
-
-	// duplicate from channel 0 to other channels
-	for(i = 1; i < SOURCES; i++) {
-		int j;
-		dpipe_buffer_t *dupdata;
-		vsource_frame_t *dupframe;
-		dupdata = dpipe_get(g_pipe[i]);
-		dupframe = (vsource_frame_t*) dupdata->pointer;
-		//
-		vsource_dup_frame(frame, dupframe);
-		//
-		dpipe_store(g_pipe[i], dupdata);
-	}
-	dpipe_store(g_pipe[0], data);
-	
-	offscreenSurface->UnlockRect();
-#if 1	// XXX: disable until we have found a good place to safely Release()
-	if(hook_boost == 0) {
-		if(offscreenSurface != NULL) {
-			offscreenSurface->Release();
-			offscreenSurface = NULL;
-		}
-		if(resolvedSurface != NULL) {
-			resolvedSurface->Release();
-			resolvedSurface = NULL;
-		}
-	}
-#endif
-		
-	return true;
-}
-
-static int
-D3D9_get_resolution(IDirect3DDevice9 *pDevice) {
-	HRESULT hr;
-	D3DSURFACE_DESC desc;
-	IDirect3DSurface9 *renderSurface;
-	static int initialized = 0;
-	//
-	if(initialized > 0) {
-		return 0;
-	}
-	// get current resolution
-	hr = pDevice->GetRenderTarget(0, &renderSurface);
-	if(!renderSurface || FAILED(hr))
-		return -1;
-	renderSurface->GetDesc(&desc);
-	renderSurface->Release();
-	//
-	if(ga_hook_get_resolution(desc.Width, desc.Height) < 0)
-		return -1;
-	initialized = 1;
-	return 0;
-}
+//static int
+//D3D9_get_resolution(IDirect3DDevice9 *pDevice) {
+//	HRESULT hr;
+//	D3DSURFACE_DESC desc;
+//	IDirect3DSurface9 *renderSurface;
+//	static int initialized = 0;
+//	//
+//	if(initialized > 0) {
+//		return 0;
+//	}
+//	// get current resolution
+//	hr = pDevice->GetRenderTarget(0, &renderSurface);
+//	if(!renderSurface || FAILED(hr))
+//		return -1;
+//	renderSurface->GetDesc(&desc);
+//	renderSurface->Release();
+//	//
+//	if(ga_hook_get_resolution(desc.Width, desc.Height) < 0)
+//		return -1;
+//	initialized = 1;
+//	return 0;
+//}
 
 static int
 DXGI_get_resolution(IDXGISwapChain *pSwapChain) {
@@ -270,178 +271,178 @@ DXGI_get_resolution(IDXGISwapChain *pSwapChain) {
 //////// hook functions
 
 // Hook function that replaces the Direct3DCreate9() API
-DllExport IDirect3D9* WINAPI
-hook_d3d(UINT SDKVersion)
-{
-	GA_DBG("hook_d3d()");
-	static int hooked_d3d9 = 0;
-	IDirect3D9 *pDirect3D9 = pD3d(SDKVersion);
-
-	if (hooked_d3d9 > 0)
-		return pDirect3D9;
-
-	hooked_d3d9 = 1;
-
-	if (pD3D9CreateDevice == NULL) {
-		OutputDebugString("[Direct3DCreate9]");
-
-		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pDirect3D9;
-		pD3D9CreateDevice = (TD3D9CreateDevice) pInterfaceVTable[16];   // IDirect3D9::CreateDevice()
-		ga_hook_function("IDirect3D9::CreateDevice", pD3D9CreateDevice, hook_D3D9CreateDevice);
-	}
-
-	return pDirect3D9;
-}
+//DllExport IDirect3D9* WINAPI
+//hook_d3d(UINT SDKVersion)
+//{
+//	GA_DBG("hook_d3d()");
+//	static int hooked_d3d9 = 0;
+//	IDirect3D9 *pDirect3D9 = pD3d(SDKVersion);
+//
+//	if (hooked_d3d9 > 0)
+//		return pDirect3D9;
+//
+//	hooked_d3d9 = 1;
+//
+//	if (pD3D9CreateDevice == NULL) {
+//		OutputDebugString("[Direct3DCreate9]");
+//
+//		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pDirect3D9;
+//		pD3D9CreateDevice = (TD3D9CreateDevice) pInterfaceVTable[16];   // IDirect3D9::CreateDevice()
+//		ga_hook_function("IDirect3D9::CreateDevice", pD3D9CreateDevice, hook_D3D9CreateDevice);
+//	}
+//
+//	return pDirect3D9;
+//}
 
 // Hook function that replaces the IDirect3D9::CreateDevice() API
-DllExport HRESULT __stdcall
-hook_D3D9CreateDevice(
-		IDirect3DDevice9 * This,
-		UINT Adapter,
-		D3DDEVTYPE DeviceType,
-		HWND hFocusWindow,
-		DWORD BehaviorFlags,
-		D3DPRESENT_PARAMETERS *pPresentationParameters,
-		IDirect3DDevice9 **ppReturnedDeviceInterface
-	)
-{
-	GA_DBG("hook_D3D9CreateDevice");
-	static int createdevice_hooked = 0;
-
-	HRESULT hr = pD3D9CreateDevice(This, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
-	
-	if(createdevice_hooked > 0)
-		return hr;
-
-	if(FAILED(hr))
-		return hr;
-
-	if (pD3D9DevicePresent == NULL) {
-		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)*ppReturnedDeviceInterface;
-
-		OutputDebugString("[IDirect3D9::CreateDevice()]");
-
-		// 14: IDirect3DDevice9::GetSwapChain,  17: IDirect3DDevice9::Present
-		// 41: IDirect3DDevice9::BeginScene,    42: IDirect3DDevice9::EndScene
-		pD3D9GetSwapChain = (TD3D9GetSwapChain)pInterfaceVTable[14];
-		pD3D9DevicePresent = (TD3D9DevicePresent)pInterfaceVTable[17];     
-
-		ga_hook_function("IDirect3DDevice9::GetSwapChain", pD3D9GetSwapChain, hook_D3D9GetSwapChain);
-		ga_hook_function("IDirect3DDevice9::Present", pD3D9DevicePresent, hook_D3D9DevicePresent);
-	}
-
-	createdevice_hooked = 1;
-
-	return hr;
-}
+//DllExport HRESULT __stdcall
+//hook_D3D9CreateDevice(
+//		IDirect3DDevice9 * This,
+//		UINT Adapter,
+//		D3DDEVTYPE DeviceType,
+//		HWND hFocusWindow,
+//		DWORD BehaviorFlags,
+//		D3DPRESENT_PARAMETERS *pPresentationParameters,
+//		IDirect3DDevice9 **ppReturnedDeviceInterface
+//	)
+//{
+//	GA_DBG("hook_D3D9CreateDevice");
+//	static int createdevice_hooked = 0;
+//
+//	HRESULT hr = pD3D9CreateDevice(This, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+//	
+//	if(createdevice_hooked > 0)
+//		return hr;
+//
+//	if(FAILED(hr))
+//		return hr;
+//
+//	if (pD3D9DevicePresent == NULL) {
+//		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)*ppReturnedDeviceInterface;
+//
+//		OutputDebugString("[IDirect3D9::CreateDevice()]");
+//
+//		// 14: IDirect3DDevice9::GetSwapChain,  17: IDirect3DDevice9::Present
+//		// 41: IDirect3DDevice9::BeginScene,    42: IDirect3DDevice9::EndScene
+//		pD3D9GetSwapChain = (TD3D9GetSwapChain)pInterfaceVTable[14];
+//		pD3D9DevicePresent = (TD3D9DevicePresent)pInterfaceVTable[17];     
+//
+//		ga_hook_function("IDirect3DDevice9::GetSwapChain", pD3D9GetSwapChain, hook_D3D9GetSwapChain);
+//		ga_hook_function("IDirect3DDevice9::Present", pD3D9DevicePresent, hook_D3D9DevicePresent);
+//	}
+//
+//	createdevice_hooked = 1;
+//
+//	return hr;
+//}
 
 // Hook function that replaces the IDirect3dDevice9::GetSwapChain() API
-DllExport HRESULT __stdcall hook_D3D9GetSwapChain(
-		IDirect3DDevice9 *This,
-		UINT iSwapChain,
-		IDirect3DSwapChain9 **ppSwapChain
-	)
-{
-	GA_DBG("hook_D3D9GetSwapChain");
-	static int getswapchain_hooked = 0;
-
-	HRESULT hr = pD3D9GetSwapChain(This, iSwapChain, ppSwapChain);
-	
-	if (getswapchain_hooked > 0)
-		return hr;
-
-	getswapchain_hooked = 1;
-
-	if (ppSwapChain != NULL && pSwapChainPresent == NULL) {
-		OutputDebugString("[IDirect3dDevice9::GetSwapChain]");
-
-		IDirect3DSwapChain9 *pIDirect3DSwapChain9 = *ppSwapChain;
-		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pIDirect3DSwapChain9;  // IDirect3dSwapChain9
-		uintptr_t* ppSwapChainPresent = (uintptr_t*)pInterfaceVTable[3];   // IDirect3DSwapChain9::Present
-		pSwapChainPresent = (TSwapChainPresent) ppSwapChainPresent;
-		ga_hook_function("IDirect3DSwapChain9::Present", pSwapChainPresent, hook_D3D9SwapChainPresent);
-	}
-
-	return hr;
-}
+//DllExport HRESULT __stdcall hook_D3D9GetSwapChain(
+//		IDirect3DDevice9 *This,
+//		UINT iSwapChain,
+//		IDirect3DSwapChain9 **ppSwapChain
+//	)
+//{
+//	GA_DBG("hook_D3D9GetSwapChain");
+//	static int getswapchain_hooked = 0;
+//
+//	HRESULT hr = pD3D9GetSwapChain(This, iSwapChain, ppSwapChain);
+//	
+//	if (getswapchain_hooked > 0)
+//		return hr;
+//
+//	getswapchain_hooked = 1;
+//
+//	if (ppSwapChain != NULL && pSwapChainPresent == NULL) {
+//		OutputDebugString("[IDirect3dDevice9::GetSwapChain]");
+//
+//		IDirect3DSwapChain9 *pIDirect3DSwapChain9 = *ppSwapChain;
+//		uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pIDirect3DSwapChain9;  // IDirect3dSwapChain9
+//		uintptr_t* ppSwapChainPresent = (uintptr_t*)pInterfaceVTable[3];   // IDirect3DSwapChain9::Present
+//		pSwapChainPresent = (TSwapChainPresent) ppSwapChainPresent;
+//		ga_hook_function("IDirect3DSwapChain9::Present", pSwapChainPresent, hook_D3D9SwapChainPresent);
+//	}
+//
+//	return hr;
+//}
 
 // Hook function that replaces the IDirect3dSwapChain9::Present() API
-DllExport HRESULT __stdcall hook_D3D9SwapChainPresent(
-		IDirect3DSwapChain9 * This,
-		CONST RECT* pSourceRect,
-		CONST RECT* pDestRect,
-		HWND hDestWindowOverride,
-		CONST RGNDATA* pDirtyRegion,
-		DWORD dwFlags
-	)
-{
-	static int present_hooked = 0;
-	IDirect3DDevice9 *pDevice;
-
-	if (present_hooked == 0) {
-		OutputDebugString("[IDirect3dSwapChain9::Present()]");
-		present_hooked = 1;
-	}
-
-	HRESULT hr = pSwapChainPresent(This, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
-
-	This->GetDevice(&pDevice);
-
-	if(resolution_retrieved == 0) {
-		if(D3D9_get_resolution(pDevice) >= 0) {
-			resolution_retrieved = 1;
-		}
-		return hr;
-	}
-
-	if (enable_server_rate_control) {
-		if(ga_hook_video_rate_control() > 0)
-			D3D9_screen_capture(pDevice);
-	} else {
-		D3D9_screen_capture(pDevice);
-	}
-
-	pDevice->Release();
-	return hr;
-}
+//DllExport HRESULT __stdcall hook_D3D9SwapChainPresent(
+//		IDirect3DSwapChain9 * This,
+//		CONST RECT* pSourceRect,
+//		CONST RECT* pDestRect,
+//		HWND hDestWindowOverride,
+//		CONST RGNDATA* pDirtyRegion,
+//		DWORD dwFlags
+//	)
+//{
+//	static int present_hooked = 0;
+//	IDirect3DDevice9 *pDevice;
+//
+//	if (present_hooked == 0) {
+//		OutputDebugString("[IDirect3dSwapChain9::Present()]");
+//		present_hooked = 1;
+//	}
+//
+//	HRESULT hr = pSwapChainPresent(This, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
+//
+//	This->GetDevice(&pDevice);
+//
+//	if(resolution_retrieved == 0) {
+//		if(D3D9_get_resolution(pDevice) >= 0) {
+//			resolution_retrieved = 1;
+//		}
+//		return hr;
+//	}
+//
+//	if (enable_server_rate_control) {
+//		if(ga_hook_video_rate_control() > 0)
+//			D3D9_screen_capture(pDevice);
+//	} else {
+//		D3D9_screen_capture(pDevice);
+//	}
+//
+//	pDevice->Release();
+//	return hr;
+//}
 
 
 // Hook function that replaces the IDirect3dDevice9::Present() API
-DllExport HRESULT __stdcall hook_D3D9DevicePresent(
-		IDirect3DDevice9 * This,
-		CONST RECT* pSourceRect,
-		CONST RECT* pDestRect,
-		HWND hDestWindowOverride,
-		CONST RGNDATA* pDirtyRegion
-	)
-{
-	GA_DBG("hook_D3D9DevicePresent");
-	static int present_hooked = 0;
-
-	if (present_hooked == 0) {
-		OutputDebugString("[IDirect3dDevice9::Present()]");
-		present_hooked = 1;
-	}
-	
-	HRESULT hr = pD3D9DevicePresent(This, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);	
-	
-	if(resolution_retrieved == 0) {
-		if(D3D9_get_resolution(This) >= 0) {
-			resolution_retrieved = 1;
-		}
-		return hr;
-	}
-			
-	// rate controller
-	if (enable_server_rate_control) {
-		if(ga_hook_video_rate_control() > 0)
-			D3D9_screen_capture(This);
-	} else {
-		D3D9_screen_capture(This);
-	}
-
-	return hr;
-}
+//DllExport HRESULT __stdcall hook_D3D9DevicePresent(
+//		IDirect3DDevice9 * This,
+//		CONST RECT* pSourceRect,
+//		CONST RECT* pDestRect,
+//		HWND hDestWindowOverride,
+//		CONST RGNDATA* pDirtyRegion
+//	)
+//{
+//	GA_DBG("hook_D3D9DevicePresent");
+//	static int present_hooked = 0;
+//
+//	if (present_hooked == 0) {
+//		OutputDebugString("[IDirect3dDevice9::Present()]");
+//		present_hooked = 1;
+//	}
+//	
+//	HRESULT hr = pD3D9DevicePresent(This, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);	
+//	
+//	if(resolution_retrieved == 0) {
+//		if(D3D9_get_resolution(This) >= 0) {
+//			resolution_retrieved = 1;
+//		}
+//		return hr;
+//	}
+//			
+//	// rate controller
+//	if (enable_server_rate_control) {
+//		if(ga_hook_video_rate_control() > 0)
+//			D3D9_screen_capture(This);
+//	} else {
+//		D3D9_screen_capture(This);
+//	}
+//
+//	return hr;
+//}
 
 #if 1
 enum DX_VERSION {
@@ -501,54 +502,54 @@ hook_DXGICreateSwapChain(
 }
 
 // Hook function that replaces the D3D10CreateDeviceAndSwapChain() API
-DllExport HRESULT __stdcall
-hook_D3D10CreateDeviceAndSwapChain(
-		IDXGIAdapter *pAdapter,
-		D3D10_DRIVER_TYPE DriverType,
-		HMODULE Software,
-		UINT Flags,
-		UINT SDKVersion,
-		DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-		IDXGISwapChain **ppSwapChain,
-		ID3D10Device **ppDevice
-	)
-{
-	HRESULT hr = pD3D10CreateDeviceAndSwapChain(pAdapter, DriverType, Software, 
-			Flags, SDKVersion, pSwapChainDesc, 
-			ppSwapChain, ppDevice);
-
-	if (pDXGISwapChainPresent == NULL && pAdapter != NULL && ppSwapChain != NULL && ppDevice != NULL) {
-		//OutputDebugString("[D3D10CreateDeviceAndSwapChain]");
-		proc_hook_IDXGISwapChain_Present(*ppSwapChain);
-	}
-	
-	return hr;
-}
+//DllExport HRESULT __stdcall
+//hook_D3D10CreateDeviceAndSwapChain(
+//		IDXGIAdapter *pAdapter,
+//		D3D10_DRIVER_TYPE DriverType,
+//		HMODULE Software,
+//		UINT Flags,
+//		UINT SDKVersion,
+//		DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
+//		IDXGISwapChain **ppSwapChain,
+//		ID3D10Device **ppDevice
+//	)
+//{
+//	HRESULT hr = pD3D10CreateDeviceAndSwapChain(pAdapter, DriverType, Software, 
+//			Flags, SDKVersion, pSwapChainDesc, 
+//			ppSwapChain, ppDevice);
+//
+//	if (pDXGISwapChainPresent == NULL && pAdapter != NULL && ppSwapChain != NULL && ppDevice != NULL) {
+//		//OutputDebugString("[D3D10CreateDeviceAndSwapChain]");
+//		proc_hook_IDXGISwapChain_Present(*ppSwapChain);
+//	}
+//	
+//	return hr;
+//}
 
 // Hook function that replaces the D3D10CreateDeviceAndSwapChain1() API
-DllExport HRESULT __stdcall
-hook_D3D10CreateDeviceAndSwapChain1(
-		IDXGIAdapter *pAdapter,
-		D3D10_DRIVER_TYPE DriverType,
-		HMODULE Software,
-		UINT Flags,
-		D3D10_FEATURE_LEVEL1 HardwareLevel,
-		UINT SDKVersion,
-		DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-		IDXGISwapChain **ppSwapChain,
-		ID3D10Device1 **ppDevice
-	)
-{
-	HRESULT hr = pD3D10CreateDeviceAndSwapChain1(pAdapter, DriverType, Software, 
-				Flags, HardwareLevel, SDKVersion, 
-				pSwapChainDesc, ppSwapChain, ppDevice);
-
-	if (pDXGISwapChainPresent == NULL && pAdapter != NULL && ppSwapChain != NULL && ppDevice != NULL) {
-		//OutputDebugString("[D3D10CreateDeviceAndSwapChain1]");
-		proc_hook_IDXGISwapChain_Present(*ppSwapChain);
-	}
-	return hr;
-}
+//DllExport HRESULT __stdcall
+//hook_D3D10CreateDeviceAndSwapChain1(
+//		IDXGIAdapter *pAdapter,
+//		D3D10_DRIVER_TYPE DriverType,
+//		HMODULE Software,
+//		UINT Flags,
+//		D3D10_FEATURE_LEVEL1 HardwareLevel,
+//		UINT SDKVersion,
+//		DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
+//		IDXGISwapChain **ppSwapChain,
+//		ID3D10Device1 **ppDevice
+//	)
+//{
+//	HRESULT hr = pD3D10CreateDeviceAndSwapChain1(pAdapter, DriverType, Software, 
+//				Flags, HardwareLevel, SDKVersion, 
+//				pSwapChainDesc, ppSwapChain, ppDevice);
+//
+//	if (pDXGISwapChainPresent == NULL && pAdapter != NULL && ppSwapChain != NULL && ppDevice != NULL) {
+//		//OutputDebugString("[D3D10CreateDeviceAndSwapChain1]");
+//		proc_hook_IDXGISwapChain_Present(*ppSwapChain);
+//	}
+//	return hr;
+//}
 
 // Hook function that replaces the D3D11CreateDeviceAndSwapChain() API
 DllExport HRESULT __stdcall
@@ -589,7 +590,8 @@ check_dx_device_version(IDXGISwapChain * This, const GUID IID_target) {
 
 	hr = This->GetDevice(IID_target, (void**)&pDevice);
 	if (FAILED(hr) || pDevice == NULL) {  // failed to get this device 
-		pDevice->Release();
+		if (pDevice != NULL)
+			pDevice->Release();
 		return FALSE; 
 	}
 
@@ -605,6 +607,7 @@ hook_DXGISwapChainPresent(
 		UINT Flags
 	)
 {
+	ga_error("hook_DXGISwapChainPresent");
 	static int frame_interval;
 	static LARGE_INTEGER initialTv, captureTv, freq;
 	static int capture_initialized = 0;
@@ -763,86 +766,87 @@ hook_DXGISwapChainPresent(
 
 	// d11
 	} else if (dx_version == dx_11) {
-		void *ppDevice;	
-		This->GetDevice(IID_ID3D11Device, &ppDevice);
-		ID3D11Device *pDevice = (ID3D11Device*) ppDevice;
+		//void *ppDevice;	
+		//This->GetDevice(IID_ID3D11Device, &ppDevice);
+		//ID3D11Device *pDevice = (ID3D11Device*) ppDevice;
 
-		This->GetDevice(IID_ID3D11DeviceContext, &ppDevice);
-		ID3D11DeviceContext *pDeviceContext = (ID3D11DeviceContext *) ppDevice;
-		
-		ID3D11RenderTargetView *pRTV = NULL;
-		ID3D11Resource *pSrcResource = NULL;
-		pDeviceContext->OMGetRenderTargets(1, &pRTV, NULL);
-		pRTV->GetResource(&pSrcResource);
+		//This->GetDevice(IID_ID3D11DeviceContext, &ppDevice);
+		//ID3D11DeviceContext *pDeviceContext = (ID3D11DeviceContext *) ppDevice;
+		//
+		//ID3D11RenderTargetView *pRTV = NULL;
+		//ID3D11Resource *pSrcResource = NULL;
+		//pDeviceContext->OMGetRenderTargets(1, &pRTV, NULL);
+		//pRTV->GetResource(&pSrcResource);
 	
-		ID3D11Texture2D *pSrcBuffer = (ID3D11Texture2D *)pSrcResource;
-		ID3D11Texture2D *pDstBuffer = NULL;
-		
-		D3D11_TEXTURE2D_DESC desc;
-		pSrcBuffer->GetDesc(&desc);
-		desc.BindFlags = 0;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		desc.Usage = D3D11_USAGE_STAGING;
+		//ID3D11Texture2D *pSrcBuffer = (ID3D11Texture2D *)pSrcResource;
+		//ID3D11Texture2D *pDstBuffer = NULL;
+		//
+		//D3D11_TEXTURE2D_DESC desc;
+		//pSrcBuffer->GetDesc(&desc);
+		//desc.BindFlags = 0;
+		//desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		//desc.Usage = D3D11_USAGE_STAGING;
 
-		hr = pDevice->CreateTexture2D(&desc, NULL, &pDstBuffer);
-		if (FAILED(hr)) {
-			OutputDebugString("Failed to create buffer");
-			//assert(exp_state == exp_none);
-		}
-		pDeviceContext->CopyResource(pDstBuffer, pSrcBuffer);
+		//hr = pDevice->CreateTexture2D(&desc, NULL, &pDstBuffer);
+		//if (FAILED(hr)) {
+		//	OutputDebugString("Failed to create buffer");
+		//	//assert(exp_state == exp_none);
+		//}
+		//pDeviceContext->CopyResource(pDstBuffer, pSrcBuffer);
 
-		D3D11_MAPPED_SUBRESOURCE mapped_screen;
-		hr = pDeviceContext->Map(pDstBuffer, 0, D3D11_MAP_READ, 0, &mapped_screen);
-		if (FAILED(hr)) {
-			OutputDebugString("Failed to map from DeviceContext");
-			//assert(exp_state == exp_none);
-		}
-		
-		// copy image 
-		do {
-			unsigned char *src, *dst;
-			data = dpipe_get(g_pipe[0]);
-			frame = (vsource_frame_t*) data->pointer;
-			frame->pixelformat = PIX_FMT_BGRA;
-			frame->realwidth = desc.Width;
-			frame->realheight = desc.Height;
-			frame->realstride = desc.Width<<2;
-			frame->realsize = frame->realwidth * frame->realstride;
-			frame->linesize[0] = frame->realstride;//frame->stride;
-			//
-			src = (unsigned char*) mapped_screen.pData;
-			dst = (unsigned char*) frame->imgbuf;
-			for (i = 0; i < encoder_height; i++) {				
-				CopyMemory(dst, src, frame->realstride/*frame->stride*/);
-				src += mapped_screen.RowPitch;
-				dst += frame->realstride;//frame->stride;
-			}
-			frame->imgpts = pcdiff_us(captureTv, initialTv, freq)/frame_interval;
-			gettimeofday(&frame->timestamp, NULL);
-		} while(0);
+		//D3D11_MAPPED_SUBRESOURCE mapped_screen;
+		//hr = pDeviceContext->Map(pDstBuffer, 0, D3D11_MAP_READ, 0, &mapped_screen);
+		//if (FAILED(hr)) {
+		//	OutputDebugString("Failed to map from DeviceContext");
+		//	//assert(exp_state == exp_none);
+		//}
+		//
+		//// copy image 
+		//do {
+		//	unsigned char *src, *dst;
+		//	data = dpipe_get(g_pipe[0]);
+		//	frame = (vsource_frame_t*) data->pointer;
+		//	frame->pixelformat = PIX_FMT_BGRA;
+		//	frame->realwidth = desc.Width;
+		//	frame->realheight = desc.Height;
+		//	frame->realstride = desc.Width<<2;
+		//	frame->realsize = frame->realwidth * frame->realstride;
+		//	frame->linesize[0] = frame->realstride;//frame->stride;
+		//	//
+		//	src = (unsigned char*) mapped_screen.pData;
+		//	dst = (unsigned char*) frame->imgbuf;
+		//	for (i = 0; i < encoder_height; i++) {				
+		//		CopyMemory(dst, src, frame->realstride/*frame->stride*/);
+		//		src += mapped_screen.RowPitch;
+		//		dst += frame->realstride;//frame->stride;
+		//	}
+		//	frame->imgpts = pcdiff_us(captureTv, initialTv, freq)/frame_interval;
+		//	gettimeofday(&frame->timestamp, NULL);
+		//} while(0);
 	
-		// duplicate from channel 0 to other channels
-		for(i = 1; i < SOURCES; i++) {
-			int j;
-			dpipe_buffer_t *dupdata;
-			vsource_frame_t *dupframe;
-			dupdata = dpipe_get(g_pipe[i]);
-			dupframe = (vsource_frame_t*) dupdata->pointer;
-			//
-			vsource_dup_frame(frame, dupframe);
-			//
-			dpipe_store(g_pipe[i], dupdata);
-		}
-		dpipe_store(g_pipe[0], data);
+		//// duplicate from channel 0 to other channels
+		//for(i = 1; i < SOURCES; i++) {
+		//	int j;
+		//	dpipe_buffer_t *dupdata;
+		//	vsource_frame_t *dupframe;
+		//	dupdata = dpipe_get(g_pipe[i]);
+		//	dupframe = (vsource_frame_t*) dupdata->pointer;
+		//	//
+		//	vsource_dup_frame(frame, dupframe);
+		//	//
+		//	dpipe_store(g_pipe[i], dupdata);
+		//}
+		//dpipe_store(g_pipe[0], data);
 
-		pDeviceContext->Unmap(pDstBuffer, 0);
+		//pDeviceContext->Unmap(pDstBuffer, 0);
 
-		pDevice->Release();
-		pDeviceContext->Release();
-		pSrcResource->Release();
-		pSrcBuffer->Release();
-		pRTV->Release();
-		pDstBuffer->Release();
+		//pDevice->Release();
+		//pDeviceContext->Release();
+		//pSrcResource->Release();
+		//pSrcBuffer->Release();
+		//pRTV->Release();
+		//pDstBuffer->Release();
+		return hook_DXGISwapChainPresentD11(This, captureTv, initialTv, freq, frame_interval);
 	}
 
 	return hr;
